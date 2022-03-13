@@ -23,29 +23,48 @@ Our project is structured as follows
 .
 ├── assets
 │   ├── datasets
-│   │   ├── ADA-USD.csv
-│   │   └── BTC-USD.csv
+│   │   ├── BTC-USD.csv
+│   │   └── ETH-USD.csv
 │   └── plots
 ├── LICENSE
+├── main.py
 ├── README.md
-├── report
+├── requirements.txt
 └── src
     ├── data_loader
+    │   ├── __init__.py
     │   ├── load.py
     │   └── __pycache__
+    │       ├── __init__.cpython-38.pyc
+    │       ├── __init__.cpython-39.pyc
+    │       ├── load.cpython-38.pyc
     │       └── load.cpython-39.pyc
-    ├── engine
-    │   └── data_parser.py
-    ├── main.py
+    ├── __init__.py
     ├── models
-    │   ├── baseline.py
-    │   ├── oracle.py
+    │   ├── baseline
+    │   │   └── baseline.py
+    │   ├── __init__.py
+    │   ├── oracle
+    │   │   ├── data
+    │   │   │   └── oracle_best.pth
+    │   │   ├── oracle.py
+    │   │   └── __pycache__
+    │   │       ├── oracle.cpython-38.pyc
+    │   │       └── oracle.cpython-39.pyc
     │   └── __pycache__
-    │       └── baseline.cpython-39.pyc
-    ├── plotting_utils
-    │   └── bokeh_utils.py
-    └── utils
-        └── utility_functions.py
+    │       ├── __init__.cpython-38.pyc
+    │       └── __init__.cpython-39.pyc
+    ├── __pycache__
+    │   ├── __init__.cpython-38.pyc
+    │   └── __init__.cpython-39.pyc
+    └── tuning
+        ├── __init__.py
+        ├── oracle_hyp_conf.yml
+        ├── oracle_trial.py
+        ├── __pycache__
+        │   ├── __init__.cpython-39.pyc
+        │   └── oracle_trial.cpython-39.pyc
+        └── search_space.json
 ```
 
 [^yahoo-finance]: https://finance.yahoo.com/quote/BTC-USD/history/
