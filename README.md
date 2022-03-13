@@ -8,8 +8,9 @@ authors: Nathan Waltz, Funso Oje, Hongjin Zhang
 We will be utilizing a variety of time series forecasting techniques and testing their efficacy on the Yahoo finance dataset [^yahoo-finance]. 
 
 - [x] Create basic directory structure
-- [x] Implement Baseline
-- [ ] Implement Oracle
+- [ ] Implement Baseline
+- [X] Implement Oracle
+- [X] Added NNI for hyperparameter tuning
 - [ ] Improve Baseline fitting?
 - [ ] Create custom model(s) for data
 - [ ] Develop loss function(s) for comparing performance
