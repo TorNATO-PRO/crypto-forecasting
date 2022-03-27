@@ -22,11 +22,14 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 
 from collections import OrderedDict
+
+from scipy.stats import norm
 from torch.optim import Adam
+from src.models.loss import RiskAdjustedMeanLoss
 
 # check whether it can run on GPU
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 
 class NegativeMeanReturnLoss(nn.Module):
     """
@@ -158,8 +161,7 @@ def train_model(data: pd.DataFrame,
                 parameters: Dict,
                 window_size: int = 40,
                 num_epochs: int = 500,
-                train_val_ratio: float = 0.8,
-                save_model: bool = False) -> Tuple[np.float32, nn.Module]:
+                train_val_ratio: float = 0.8) -> Tuple[np.float32, nn.Module]:
     """
     Trains the model.
 
@@ -173,7 +175,6 @@ def train_model(data: pd.DataFrame,
     :param save_model: Whether to save the model.
     :return: The minimum validation loss and the model.
     """
-    dir_path = os.path.dirname(os.path.realpath(__file__))
     # cut after end date
     data = data[data.index < end_date]
     ts_len = data[data.index > start_date].shape[0]
@@ -194,6 +195,18 @@ def train_model(data: pd.DataFrame,
     data_source['close_roc'] = (data['Close'] / data['Close'].shift(1))
     data_source['ind1'] = get_indicator(data, ind1_name, parameters['ind1'])
     data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
+
+    # add value at risk as an indicator
+    pct_changes = data['Close'].pct_change()
+    value_at_risk = []
+    for i in range(len(pct_changes)):
+        mean = pct_changes[:i].mean()
+        std = pct_changes[:i].std()
+        value_at_risk_pct = abs(norm.ppf(0.05, mean, std))
+        value_at_risk.append(value_at_risk_pct)
+
+    data_source['ind3'] = pd.Series(value_at_risk)
+    data_source['ind3'].index = pct_changes.index
 
     # Cut to 'start date'
     for k, v in data_source.items():
@@ -219,7 +232,7 @@ def train_model(data: pd.DataFrame,
     # Initialize model
     model_params = {
         'rnn_input_size': 2,
-        'ind_input_size': 2,
+        'ind_input_size': 3,
         'rnn_type': rnn_type,
         'rnn_hidden_size': rnn_hidden_size,
         'ind_hidden_size': ind_hidden_size,
@@ -227,11 +240,11 @@ def train_model(data: pd.DataFrame,
     }
     model = Oracle(**model_params).to(device)
     optimizer = Adam(model.parameters(), lr=learning_rate)
-    criterion = NegativeMeanReturnLoss()
+    criterion = RiskAdjustedMeanLoss()
 
     # train the model
     min_val_loss = numpy.inf
-    best_params = None
+    val_losses = []
     for e in range(num_epochs):
         model.train()
         predicted = model(close_train, index_train)
@@ -248,16 +261,13 @@ def train_model(data: pd.DataFrame,
 
             if val_loss.item() < min_val_loss:
                 min_val_loss = val_loss.item()
-                best_params = copy.deepcopy(model.state_dict())
+                val_losses.append(min_val_loss)
 
         if e % 10 == 0:
-            print(f'Epoch {e} | train: {round(loss.item(), 4)}, '
-                  f'val: {round(val_loss.item(), 4)}')
+            print(f'Epoch {e} | train: {loss.item()}, '
+                  f'val: {val_loss.item()}')
 
-    if save_model:
-        torch.save(best_params, f'{dir_path}/data/oracle_best.pth')
-
-    return min_val_loss, model
+    return np.asarray(val_losses).mean(), model
 
 
 def evaluate(data: pd.DataFrame,
@@ -285,6 +295,7 @@ def evaluate(data: pd.DataFrame,
     data_source = OrderedDict()
     data_source['close_diff'] = (data['Close'] - data['Close'].shift(1))
     data_source['close_roc'] = (data['Close'] / data['Close'].shift(1))
+    data_source['pct_change'] = data['Close'].pct_change()
     data_source['ind1'] = get_indicator(data, parameters['ind1']['_name'], parameters['ind1'])
     data_source['ind2'] = get_indicator(data, parameters['ind2']['_name'], parameters['ind2'])
     data_source['close_diff'][0] = 0
@@ -306,7 +317,7 @@ def evaluate(data: pd.DataFrame,
     tomorrow_price_diff = y[:, :, 0].view(-1)
 
     model_params = {
-        'rnn_input_size': 2,
+        'rnn_input_size': 3,
         'ind_input_size': 2,
         'rnn_type': parameters['rnn_type'],
         'rnn_hidden_size': parameters['rnn_hidden_size'],
@@ -341,4 +352,6 @@ def evaluate(data: pd.DataFrame,
         plt.show()
 
         print(f'Model Returns: {round(cumsum_return[-1], 4)}')
+        print(f'Model Mean returns: {np.mean(cumsum_return)}')
         print(f'Buy and Hold Returns: {round(cumsum_price[-1], 4)}')
+        print(f'Buy and Hold Mean Returns: {np.mean(cumsum_price)}')

@@ -8,19 +8,20 @@ import src.models.oracle.oracle as oracle
 
 # define the model parameters
 params = {
-    "lr": 0.01,
-    "rnn_type": "rnn",
-    "rnn_hidden_size": 24,
+    "lr": 0.0005,
+    "rnn_type": "gru",
+    "rnn_hidden_size": 8,
     "ind_hidden_size": 4,
-    "des_size": 8,
+    "des_size": 2,
     "ind1": {
         "_name": "apo",
-        'fast': 3,
-        'slow': 40
+        'fast': 5,
+        'slow': 14
     },
     "ind2": {
-        "_name": "cci",
-        'length': 5
+        "_name": "apo",
+        'fast': 5,
+        'slow': 20
     }
 }
 
@@ -32,5 +33,5 @@ torch.manual_seed(seed)
 
 data = DataLoader()
 dataset = data.load_data(CryptoDataset.BITCOIN)
-_, oracle_model = oracle.train_model(dataset, '2017-01-01', '2021-01-01', params, save_model=True)
+_, oracle_model = oracle.train_model(dataset, '2017-01-01', '2021-01-01', params)
 oracle.evaluate(dataset, '2021-01-01', '2022-01-01', params, oracle_model)
