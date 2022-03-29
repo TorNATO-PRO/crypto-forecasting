@@ -28,35 +28,8 @@ from torch.optim import Adam
 from src.models.loss import RiskAdjustedMeanLoss
 
 # check whether it can run on GPU
-# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-device = torch.device('cpu')
-
-class NegativeMeanReturnLoss(nn.Module):
-    """
-    Negative mean return loss, negative to maximize the
-    mean return on investments.
-    """
-
-    def __init__(self):
-        """
-        Constructs a new instance of the Oracle class.
-        """
-        super(NegativeMeanReturnLoss, self).__init__()
-
-    def forward(self, lots: torch.Tensor, price_diff: torch.Tensor) -> torch.Tensor:
-        """
-        The forward method, defines how the model
-        shall be run.
-
-        :param lots: The model's proposed stock holdings.
-        :param price_diff: The difference in price from the day before, computed
-        for each day.
-        :return: The negative mean return loss.
-        """
-        abs_return = torch.mul(lots.view(-1), price_diff)
-        ar = torch.mean(abs_return)
-        return torch.neg(ar)
-
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# device = torch.device('cpu')
 
 class Oracle(nn.Module):
     """
@@ -172,7 +145,6 @@ def train_model(data: pd.DataFrame,
     :param num_epochs: The number of epochs to train the model for.
     :param train_val_ratio: How much we want for train and validation.
     :param parameters: Model hyperparameters.
-    :param save_model: Whether to save the model.
     :return: The minimum validation loss and the model.
     """
     # cut after end date
@@ -202,7 +174,7 @@ def train_model(data: pd.DataFrame,
     for i in range(len(pct_changes)):
         mean = pct_changes[:i].mean()
         std = pct_changes[:i].std()
-        value_at_risk_pct = abs(norm.ppf(0.05, mean, std))
+        value_at_risk_pct = abs(norm.ppf(0.01, mean, std))
         value_at_risk.append(value_at_risk_pct)
 
     data_source['ind3'] = pd.Series(value_at_risk)
@@ -227,6 +199,7 @@ def train_model(data: pd.DataFrame,
     # get separate inputs, outputs
     close_train, close_val = x_train[:, :, :2], x_val[:, :, :2]
     index_train, index_val = x_train[:, -1, 2:], x_val[:, -1, 2:]
+    print(index_train.shape)
     price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
 
     # Initialize model

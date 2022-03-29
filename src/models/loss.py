@@ -53,9 +53,6 @@ class RiskAdjustedMeanLoss(nn.Module):
         :param lots: The model's proposed stock holdings.
         :param price_diff: The difference in price from the day before, computed
         for each day.
-        :param price_percent_change: A tensor that contains the price percent change
-        from the previous day.
         :return: The negative mean return loss.
         """
-        abs_return = torch.mul(lots.view(-1), price_diff)
-        return torch.sigmoid(torch.neg(torch.mean(abs_return)))
+        return torch.neg(torch.mean(torch.mul(lots.view(-1), price_diff)))

@@ -8,20 +8,19 @@ import src.models.oracle.oracle as oracle
 
 # define the model parameters
 params = {
-    "lr": 0.0005,
+    "lr": 0.005,
     "rnn_type": "gru",
     "rnn_hidden_size": 8,
-    "ind_hidden_size": 4,
-    "des_size": 2,
+    "ind_hidden_size": 2,
+    "des_size": 8,
     "ind1": {
-        "_name": "apo",
-        'fast': 5,
+        "_name": "ao",
+        'fast': 9,
         'slow': 14
     },
     "ind2": {
-        "_name": "apo",
-        'fast': 5,
-        'slow': 20
+        "_name": "rsi",
+        'length': 20
     }
 }
 
