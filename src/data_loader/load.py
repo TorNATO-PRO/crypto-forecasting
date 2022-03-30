@@ -4,10 +4,9 @@ Author: Nathan Waltz
 Implemented loading utilities for the datasets.
 """
 from pathlib import Path
-from darts import TimeSeries
 
-import numpy as np
 import pandas as pd
+import numpy as np
 from enum import Enum
 
 
@@ -42,12 +41,3 @@ class DataLoader:
         df: pd.DataFrame = pd.read_csv(path, parse_dates=['Date'], index_col='Date')
         df.astype({col: np.float32 for col in df.columns})
         return df
-
-    def load_time_series(self, dataset: CryptoDataset) -> TimeSeries:
-        """
-        Loads a time series object from a specified cryptocurrency dataset.
-
-        :param dataset: The type of CryptoDataset to load.
-        :return: A TimeSeries object that corresponds to that CryptoDataset.
-        """
-        return TimeSeries.from_dataframe(self.load_data(dataset))
