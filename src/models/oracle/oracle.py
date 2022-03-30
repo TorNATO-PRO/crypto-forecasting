@@ -317,6 +317,11 @@ def evaluate(data: pd.DataFrame,
         cumsum_price = [0] + torch.cumsum(tomorrow_price_diff, dim=0) \
             .view(-1).tolist()
 
+        print(f'Model Returns: {round(cumsum_return[-1], 4)}')
+        print(f'Model Mean returns: {np.mean(cumsum_return)}')
+        print(f'Buy and Hold Returns: {round(cumsum_price[-1], 4)}')
+        print(f'Buy and Hold Mean Returns: {np.mean(cumsum_price)}')
+        
         plt.title(f'Trading evaluation from {start_date} to {end_date}')
         plt.plot(cumsum_return, label='Model Returns')
         plt.plot(cumsum_price, label='Buy and Hold Returns')
@@ -324,7 +329,4 @@ def evaluate(data: pd.DataFrame,
         plt.legend()
         plt.show()
 
-        print(f'Model Returns: {round(cumsum_return[-1], 4)}')
-        print(f'Model Mean returns: {np.mean(cumsum_return)}')
-        print(f'Buy and Hold Returns: {round(cumsum_price[-1], 4)}')
-        print(f'Buy and Hold Mean Returns: {np.mean(cumsum_price)}')
+        
