@@ -216,7 +216,6 @@ def train_model(data: pd.DataFrame,
     criterion = NegativeMeanReturnLoss()
 
     # train the model
-    min_val_loss = numpy.inf
     val_losses = []
     for e in range(num_epochs):
         model.train()
@@ -231,10 +230,7 @@ def train_model(data: pd.DataFrame,
         with torch.no_grad():
             val_predicted = model(close_val, index_val)
             val_loss = criterion(val_predicted, price_val)
-
-            if val_loss.item() < min_val_loss:
-                min_val_loss = val_loss.item()
-                val_losses.append(min_val_loss)
+            val_losses.append(val_loss)
 
         if e % 10 == 0:
             print(f'Epoch {e} | train: {loss.item()}, '
@@ -321,7 +317,7 @@ def evaluate(data: pd.DataFrame,
         print(f'Model Mean returns: {np.mean(cumsum_return)}')
         print(f'Buy and Hold Returns: {round(cumsum_price[-1], 4)}')
         print(f'Buy and Hold Mean Returns: {np.mean(cumsum_price)}')
-        
+
         plt.title(f'Trading evaluation from {start_date} to {end_date}')
         plt.plot(cumsum_return, label='Model Returns')
         plt.plot(cumsum_price, label='Buy and Hold Returns')
