@@ -25,7 +25,7 @@ from collections import OrderedDict
 
 from scipy.stats import norm
 from torch.optim import Adam
-from src.models.loss import RiskAdjustedMeanLoss
+from src.models.loss import NegativeMeanReturnLoss
 
 # check whether it can run on GPU
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -213,7 +213,7 @@ def train_model(data: pd.DataFrame,
     }
     model = Oracle(**model_params).to(device)
     optimizer = Adam(model.parameters(), lr=learning_rate)
-    criterion = RiskAdjustedMeanLoss()
+    criterion = NegativeMeanReturnLoss()
 
     # train the model
     min_val_loss = numpy.inf

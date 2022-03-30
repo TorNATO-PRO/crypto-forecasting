@@ -18,7 +18,7 @@ class NegativeMeanReturnLoss(nn.Module):
         """
         Constructs a new instance of the RiskAdjustedMeanLoss class.
         """
-        super(RiskAdjustedMeanLoss, self).__init__()
+        super(NegativeMeanReturnLoss, self).__init__()
 
     def forward(self, lots: torch.Tensor, price_diff: torch.Tensor) -> torch.Tensor:
         """
