@@ -346,7 +346,7 @@ def evaluate(data: pd.DataFrame,
 
     if model is None:
         model = Custom(**model_params).to(device)
-        model.load_state_dict(torch.load(f'{dir_path}/data/oracle_best.pth'))
+        model.load_state_dict(torch.load(f'{dir_path}/data/custom_best.pth'))
 
     # evaluate the model
     model.eval()
