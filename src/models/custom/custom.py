@@ -189,8 +189,7 @@ def train_model(data: pd.DataFrame,
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    col_list = columns
-    for name in col_list:
+    for name in columns:
         key_prefix = name.strip().replace(" ", "_").lower()
         data_source[f'{key_prefix}_diff'] = data[name] - data[name].shift(1)
         data_source[f'{key_prefix}_roc'] = data[name] / data[name].shift(1)
@@ -226,11 +225,11 @@ def train_model(data: pd.DataFrame,
     x_val = torch.tensor(x_val).to(device).float()
     y_val = torch.tensor(y_val).to(device).float()
 
-    train_list = create_feature_list(x_train, col_list, rnn_hidden_size)
-    val_list = create_feature_list(x_val, col_list, rnn_hidden_size)
+    train_list = create_feature_list(x_train, columns, rnn_hidden_size)
+    val_list = create_feature_list(x_val, columns, rnn_hidden_size)
 
     index_train, index_val = x_train[:, -1, 2 *
-                                     len(col_list):], x_val[:, -1, 2 * len(col_list):]
+                                     len(columns):], x_val[:, -1, 2 * len(columns):]
     price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
 
     model_params = {
