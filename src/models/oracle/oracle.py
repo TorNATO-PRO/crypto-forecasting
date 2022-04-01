@@ -190,7 +190,7 @@ def train_model(data: pd.DataFrame,
             print(f'Epoch {e} | train: {loss.item()}, '
                   f'val: {val_loss.item()}')
 
-    return torch.tensor(val_losses).mean(), model
+    return float(torch.mean(torch.tensor(val_losses))), model
 
 
 def evaluate(data: pd.DataFrame,
