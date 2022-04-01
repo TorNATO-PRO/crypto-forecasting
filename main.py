@@ -27,18 +27,19 @@ params_oracle = {
 
 params_custom = {
     "lr": 0.005,
-    'rnn_hidden_size': 8,
+    'rnn_hidden_size': 32,
     "rnn_agg_hidden_size": 8,
-    "trading_ind_hidden_size": 2,
-    "linear_agg_hidden_size": 2,
+    "trading_ind_hidden_size": 32,
+    "linear_agg_hidden_size": 24,
     "ind1": {
         "_name": "ao",
-        'fast': 9,
-        'slow': 14
+        'fast': 5,
+        'slow': 20
     },
     "ind2": {
-        "_name": "rsi",
-        'length': 20
+        "_name": "apo",
+        'fast': 3,
+        'slow': 20
     }
 }
 
@@ -50,6 +51,8 @@ torch.manual_seed(seed)
 
 data_loader = DataLoader()
 dataset = data_loader.load_data(CryptoDataset.BITCOIN)
-print(dataset.columns)
-_, oracle_model = custom.train_model(dataset, '2017-01-01', '2021-01-01', params_custom, ['Close', 'High', 'Low', 'Open', 'Adj Close', 'Volume'])
-custom.evaluate(dataset, '2021-01-01', '2022-01-01', params_custom, ['Close', 'High', 'Low', 'Open', 'Adj Close', 'Volume'], oracle_model)
+_, custom_model = custom.train_model(dataset, '2017-01-01', '2021-01-01', params_custom, ['Close', 'High', 'Low', 'Open', 'Adj Close', 'Volume'])
+custom.evaluate(dataset, '2021-01-01', '2022-01-01', params_custom, ['Close', 'High', 'Low', 'Open', 'Adj Close', 'Volume'], custom_model)
+
+_, oracle_model = oracle.train_model(dataset, '2017-01-01', '2021-01-01', params_oracle)
+oracle.evaluate(dataset, '2021-01-01', '2022-01-01', params_oracle, oracle_model)
