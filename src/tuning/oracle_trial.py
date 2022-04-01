@@ -1,12 +1,19 @@
+import random
 from typing import Dict
 
 import numpy as np
 
 import nni
+import torch
 
 from ..data_loader.load import DataLoader, CryptoDataset
 from ..models.oracle.oracle import train_model
 
+# set seed
+seed = 80085
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
 
 def prepare_oracle(params: Dict) -> np.float32:
     data = DataLoader()
