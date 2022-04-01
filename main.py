@@ -27,6 +27,7 @@ params_oracle = {
 
 params_custom = {
     "lr": 0.005,
+    'rnn_hidden_size': 8,
     "rnn_agg_hidden_size": 8,
     "trading_ind_hidden_size": 2,
     "linear_agg_hidden_size": 2,
@@ -49,5 +50,5 @@ torch.manual_seed(seed)
 
 data = DataLoader()
 dataset = data.load_data(CryptoDataset.BITCOIN)
-_, oracle_model = oracle.train_model(dataset, '2017-01-01', '2021-01-01', params_oracle)
-oracle.evaluate(dataset, '2021-01-01', '2022-01-01', params_oracle, oracle_model)
+_, oracle_model = custom.train_model(dataset, '2017-01-01', '2021-01-01', params_custom)
+custom.evaluate(dataset, '2021-01-01', '2022-01-01', params_custom, oracle_model)

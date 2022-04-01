@@ -190,7 +190,7 @@ def train_model(data: pd.DataFrame,
             print(f'Epoch {e} | train: {loss.item()}, '
                   f'val: {val_loss.item()}')
 
-    return float(torch.mean(torch.tensor(val_losses))), model
+    return torch.mean(torch.tensor(val_losses)).item(), model
 
 
 def evaluate(data: pd.DataFrame,
@@ -200,7 +200,7 @@ def evaluate(data: pd.DataFrame,
              model: nn.Module = None,
              window_size: int = 40) -> None:
     """
-    Trains the model.
+    Evaluates the model.
 
     :param model: The model that is being evaluated.
     :param start_date: The date to start with.
