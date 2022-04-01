@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 
 # trust me, we need this for the trading indicators
-import pandas_ta as ta
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt

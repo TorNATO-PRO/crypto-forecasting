@@ -2,6 +2,7 @@ from typing import List, Tuple, Dict, Union
 
 import numpy as np
 import pandas as pd
+import pandas_ta as ta
 
 def sliding_window(time_series: List[List[np.float32]],
                    num_features: int,
