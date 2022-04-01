@@ -123,18 +123,6 @@ def train_model(data: pd.DataFrame,
     data_source['ind1'] = get_indicator(data, ind1_name, parameters['ind1'])
     data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
 
-    # add value at risk as an indicator
-    # pct_changes = data['Close'].pct_change()
-    # value_at_risk = []
-    # for i in range(len(pct_changes)):
-    #     mean = pct_changes[:i].mean()
-    #     std = pct_changes[:i].std()
-    #     value_at_risk_pct = abs(norm.ppf(0.01, mean, std))
-    #     value_at_risk.append(value_at_risk_pct)
-
-    # data_source['ind3'] = pd.Series(value_at_risk)
-    # data_source['ind3'].index = pct_changes.index
-
     # Cut to 'start date'
     for k, v in data_source.items():
         data_source[k] = v[v.index >= start_date].dropna().values

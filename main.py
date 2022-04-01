@@ -43,7 +43,7 @@ params_custom = {
 }
 
 # set seed
-seed = 1
+seed = 80085
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -51,5 +51,5 @@ torch.manual_seed(seed)
 data_loader = DataLoader()
 dataset = data_loader.load_data(CryptoDataset.BITCOIN)
 print(dataset.columns)
-_, oracle_model = custom.train_model(dataset, '2017-01-01', '2021-01-01', params_custom)
-custom.evaluate(dataset, '2021-01-01', '2022-01-01', params_custom, oracle_model)
+_, oracle_model = custom.train_model(dataset, '2017-01-01', '2021-01-01', params_custom, ['Close', 'High', 'Low', 'Open', 'Adj Close', 'Volume'])
+custom.evaluate(dataset, '2021-01-01', '2022-01-01', params_custom, ['Close', 'High', 'Low', 'Open', 'Adj Close', 'Volume'], oracle_model)

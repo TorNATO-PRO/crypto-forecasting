@@ -153,6 +153,7 @@ def train_model(data: pd.DataFrame,
                 start_date: str,
                 end_date: str,
                 parameters: Dict,
+                columns: List[str],
                 window_size: int = 40,
                 num_epochs: int = 500,
                 train_val_ratio: float = 0.8):
@@ -188,7 +189,7 @@ def train_model(data: pd.DataFrame,
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    col_list = data.columns
+    col_list = columns
     for name in col_list:
         key_prefix = name.strip().replace(" ", "_").lower()
         data_source[f'{key_prefix}_diff'] = data[name] - data[name].shift(1)
@@ -272,6 +273,7 @@ def evaluate(data: pd.DataFrame,
              start_date: str,
              end_date: str,
              parameters: Dict,
+             columns: List[str],
              model: nn.Module = None,
              window_size: int = 40) -> None:
     """
@@ -300,7 +302,7 @@ def evaluate(data: pd.DataFrame,
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    col_list = data.columns
+    col_list = columns
     for name in col_list:
         key_prefix = name.strip().replace(" ", "_").lower()
         data_source[f'{key_prefix}_diff'] = data[name] - data[name].shift(1)
@@ -354,6 +356,8 @@ def evaluate(data: pd.DataFrame,
         trades = model(feature_list, index)
         # Rounded Trades
         trades = torch.round(trades * 100) / 100
+
+        print(trades)
 
         # Calculating Absolute Returns
         abs_return = torch.mul(trades, tomorrow_price_diff)
