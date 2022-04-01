@@ -96,6 +96,9 @@ class Custom(nn.Module):
                  goes through the model. This is our prediction for
                  the number of shares to buy.
         """
+        def concatenate_outs(h: Tensor) -> Tensor:
+            return torch.cat(tuple([h[i] for i in range(h.shape[0])]), dim=1)
+
         rnn_outputs = []
         for feature in features:
             feature_data = feature.feature_data
@@ -106,7 +109,7 @@ class Custom(nn.Module):
             _, h, _ = self.rnn_dict[feature_data.feature_name](feature.data)
             rnn_outputs.append(h)
 
-        concatenated_outputs = torch.cat(tuple(map(lambda h: h[0], rnn_outputs)), dim=1)
+        concatenated_outputs = torch.cat(tuple(map(lambda h: concatenate_outs(h), rnn_outputs)), dim=1)
         linear_from_rnn = torch.relu(self.rnn_aggregation(concatenated_outputs))
         linear_indicators = torch.relu(self.linear_indicator(indicators))
         indicators_and_linear_output = torch.cat(linear_from_rnn, linear_indicators, dim=1)
