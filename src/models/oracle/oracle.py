@@ -7,11 +7,9 @@ Production-Ready Prediction Solutions." with ISBN-13: 978-9391392574.
 The codebase has an MIT license, so I am assuming it is safe to use:
 https://github.com/bpbpublications/Time-Series-Forecasting-using-Deep-Learning/tree/main/Chapter%2007/stock
 """
-import copy
 import os
 from typing import List, Tuple, Dict, Union
 
-import numpy
 import numpy as np
 import pandas as pd
 
@@ -25,6 +23,7 @@ from collections import OrderedDict
 
 from scipy.stats import norm
 from torch.optim import Adam
+from src.models.baseline.baseline import buy_and_hold
 from src.models.loss import NegativeMeanReturnLoss
 
 # check whether it can run on GPU
@@ -309,17 +308,16 @@ def evaluate(data: pd.DataFrame,
         cumsum_return = [0] + torch.cumsum(abs_return, dim=0) \
             .view(-1).tolist()
         # Buy and Hold Strategy Returns
-        cumsum_price = [0] + torch.cumsum(tomorrow_price_diff, dim=0) \
-            .view(-1).tolist()
+        buy_and_hold_returns = buy_and_hold(tomorrow_price_diff)
 
         print(f'Model Returns: {round(cumsum_return[-1], 4)}')
         print(f'Model Mean returns: {np.mean(cumsum_return)}')
-        print(f'Buy and Hold Returns: {round(cumsum_price[-1], 4)}')
-        print(f'Buy and Hold Mean Returns: {np.mean(cumsum_price)}')
+        print(f'Buy and Hold Returns: {round(buy_and_hold_returns[-1], 4)}')
+        print(f'Buy and Hold Mean Returns: {np.mean(buy_and_hold_returns)}')
 
         plt.title(f'Trading evaluation from {start_date} to {end_date}')
         plt.plot(cumsum_return, label='Model Returns')
-        plt.plot(cumsum_price, label='Buy and Hold Returns')
+        plt.plot(buy_and_hold_returns, label='Buy and Hold Returns')
         plt.axhline(y=0, color='black', linestyle='--')
         plt.legend()
         plt.show()
