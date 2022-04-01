@@ -32,8 +32,7 @@ class FeatureMissingException(Exception):
     """
 
     def __init__(self, message="That feature is missing!"):
-        self.message = message
-        super().__init__(self.message)
+        super().__init__(message)
 
 
 class Custom(nn.Module):
