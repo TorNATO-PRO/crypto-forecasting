@@ -104,7 +104,7 @@ class Custom(nn.Module):
             feature_data = feature.feature_data
             if feature_data.feature_name not in self.rnn_dict.keys():
                 raise FeatureMissingException(
-                    f'The feature [{feature_data.feature_name}] does not exist!')
+                    f'The feature [<{feature_data.feature_name}>] does not exist!')
 
             _, h, _ = self.rnn_dict[feature_data.feature_name](feature.data)
             rnn_outputs.append(h)
@@ -115,3 +115,13 @@ class Custom(nn.Module):
         indicators_and_linear_output = torch.cat(linear_from_rnn, linear_indicators, dim=1)
         linear_aggregator = torch.relu(self.linear_aggregator(indicators_and_linear_output))
         return torch.sigmoid(self.final_linear_layer(linear_aggregator)).view(-1)
+
+
+def train_model():
+    """TODO"""
+    pass
+
+
+def evaluate_model():
+    """TODO"""
+    pass
