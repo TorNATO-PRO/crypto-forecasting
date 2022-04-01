@@ -169,16 +169,16 @@ def train_model(data: pd.DataFrame,
     data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
 
     # add value at risk as an indicator
-    pct_changes = data['Close'].pct_change()
-    value_at_risk = []
-    for i in range(len(pct_changes)):
-        mean = pct_changes[:i].mean()
-        std = pct_changes[:i].std()
-        value_at_risk_pct = abs(norm.ppf(0.01, mean, std))
-        value_at_risk.append(value_at_risk_pct)
+    # pct_changes = data['Close'].pct_change()
+    # value_at_risk = []
+    # for i in range(len(pct_changes)):
+    #     mean = pct_changes[:i].mean()
+    #     std = pct_changes[:i].std()
+    #     value_at_risk_pct = abs(norm.ppf(0.01, mean, std))
+    #     value_at_risk.append(value_at_risk_pct)
 
-    data_source['ind3'] = pd.Series(value_at_risk)
-    data_source['ind3'].index = pct_changes.index
+    # data_source['ind3'] = pd.Series(value_at_risk)
+    # data_source['ind3'].index = pct_changes.index
 
     # Cut to 'start date'
     for k, v in data_source.items():
@@ -199,13 +199,12 @@ def train_model(data: pd.DataFrame,
     # get separate inputs, outputs
     close_train, close_val = x_train[:, :, :2], x_val[:, :, :2]
     index_train, index_val = x_train[:, -1, 2:], x_val[:, -1, 2:]
-    print(index_train.shape)
     price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
 
     # Initialize model
     model_params = {
         'rnn_input_size': 2,
-        'ind_input_size': 3,
+        'ind_input_size': 2,
         'rnn_type': rnn_type,
         'rnn_hidden_size': rnn_hidden_size,
         'ind_hidden_size': ind_hidden_size,
@@ -236,7 +235,7 @@ def train_model(data: pd.DataFrame,
             print(f'Epoch {e} | train: {loss.item()}, '
                   f'val: {val_loss.item()}')
 
-    return np.asarray(val_losses).mean(), model
+    return torch.tensor(val_losses).mean(), model
 
 
 def evaluate(data: pd.DataFrame,
@@ -264,7 +263,7 @@ def evaluate(data: pd.DataFrame,
     data_source = OrderedDict()
     data_source['close_diff'] = (data['Close'] - data['Close'].shift(1))
     data_source['close_roc'] = (data['Close'] / data['Close'].shift(1))
-    data_source['pct_change'] = data['Close'].pct_change()
+    # data_source['pct_change'] = data['Close'].pct_change()
     data_source['ind1'] = get_indicator(data, parameters['ind1']['_name'], parameters['ind1'])
     data_source['ind2'] = get_indicator(data, parameters['ind2']['_name'], parameters['ind2'])
     data_source['close_diff'][0] = 0
@@ -286,7 +285,7 @@ def evaluate(data: pd.DataFrame,
     tomorrow_price_diff = y[:, :, 0].view(-1)
 
     model_params = {
-        'rnn_input_size': 3,
+        'rnn_input_size': 2,
         'ind_input_size': 2,
         'rnn_type': parameters['rnn_type'],
         'rnn_hidden_size': parameters['rnn_hidden_size'],
