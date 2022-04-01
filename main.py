@@ -27,19 +27,19 @@ params_oracle = {
 
 params_custom = {
     "lr": 0.005,
-    'rnn_hidden_size': 32,
-    "rnn_agg_hidden_size": 8,
-    "trading_ind_hidden_size": 32,
+    'rnn_hidden_size': 16,
+    "rnn_agg_hidden_size": 32,
+    "trading_ind_hidden_size": 2,
     "linear_agg_hidden_size": 24,
     "ind1": {
         "_name": "ao",
-        'fast': 5,
+        'fast': 9,
         'slow': 20
     },
     "ind2": {
-        "_name": "apo",
-        'fast': 3,
-        'slow': 20
+        "_name": "ao",
+        'fast': 9,
+        'slow': 14
     }
 }
 

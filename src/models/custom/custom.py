@@ -135,7 +135,7 @@ class Custom(nn.Module):
         return torch.sigmoid(self.final_linear_layer(linear_aggregator)).view(-1)
 
 
-def create_feature_list(data: Tensor, columns: List[str], hidden_size: int) -> List[CustomFeature]:
+def create_feature_list(data: Tensor, columns: Iterable[str], hidden_size: int) -> List[CustomFeature]:
     """
     Creates a list from passed parameters of features. Specific to
     this function.
