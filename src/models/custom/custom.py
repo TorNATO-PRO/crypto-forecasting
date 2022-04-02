@@ -261,7 +261,7 @@ def train_model(data: pd.DataFrame,
             val_loss = criterion(val_predicted, price_val)
             val_losses.append(val_loss)
 
-        if e % 10 == 0:
+        if e % 100 == 0:
             print(f'Epoch {e} | train: {loss.item()}, '
                   f'val: {val_loss.item()}')
 
@@ -356,7 +356,7 @@ def evaluate(data: pd.DataFrame,
         # Rounded Trades
         trades = torch.round(trades * 100) / 100
 
-        print(trades)
+        #print(trades)
 
         # Calculating Absolute Returns
         abs_return = torch.mul(trades, tomorrow_price_diff)

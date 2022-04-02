@@ -117,8 +117,8 @@ def train_model(data: pd.DataFrame,
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    data_source['close_diff'] = (data['Close'] - data['Close'].shift(1))
-    data_source['close_roc'] = (data['Close'] / data['Close'].shift(1))
+    data_source['open_diff'] = (data['Open'] - data['Open'].shift(1))
+    data_source['open_roc'] = (data['Open'] / data['Open'].shift(1))
     data_source['ind1'] = get_indicator(data, ind1_name, parameters['ind1'])
     data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
 
@@ -139,7 +139,7 @@ def train_model(data: pd.DataFrame,
     y_val = torch.tensor(y_val).to(device).float()
 
     # get separate inputs, outputs
-    close_train, close_val = x_train[:, :, :2], x_val[:, :, :2]
+    open_train, open_val = x_train[:, :, :2], x_val[:, :, :2]
     index_train, index_val = x_train[:, -1, 2:], x_val[:, -1, 2:]
     price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
 
@@ -160,7 +160,7 @@ def train_model(data: pd.DataFrame,
     val_losses = []
     for e in range(num_epochs):
         model.train()
-        predicted = model(close_train, index_train)
+        predicted = model(open_train, index_train)
         loss = criterion(predicted, price_train)
 
         # compute the gradients
@@ -169,11 +169,11 @@ def train_model(data: pd.DataFrame,
         optimizer.step()
 
         with torch.no_grad():
-            val_predicted = model(close_val, index_val)
+            val_predicted = model(open_val, index_val)
             val_loss = criterion(val_predicted, price_val)
             val_losses.append(val_loss)
 
-        if e % 10 == 0:
+        if e % 100 == 0:
             print(f'Epoch {e} | train: {loss.item()}, '
                   f'val: {val_loss.item()}')
 
@@ -203,13 +203,13 @@ def evaluate(data: pd.DataFrame,
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    data_source['close_diff'] = (data['Close'] - data['Close'].shift(1))
-    data_source['close_roc'] = (data['Close'] / data['Close'].shift(1))
-    # data_source['pct_change'] = data['Close'].pct_change()
+    data_source['open_diff'] = (data['Open'] - data['Open'].shift(1))
+    data_source['open_roc'] = (data['Open'] / data['Open'].shift(1))
+    # data_source['pct_change'] = data['Open'].pct_change()
     data_source['ind1'] = get_indicator(data, parameters['ind1']['_name'], parameters['ind1'])
     data_source['ind2'] = get_indicator(data, parameters['ind2']['_name'], parameters['ind2'])
-    data_source['close_diff'][0] = 0
-    data_source['close_roc'][0] = 1
+    data_source['open_diff'][0] = 0
+    data_source['open_roc'][0] = 1
 
     # Cut to 'start date'
     for k, v in data_source.items():

@@ -28,7 +28,7 @@ class DataLoader:
         Constructs a new instance of the DataLoader class.
         """
         self._data_path = (Path(__file__).parents[2]).joinpath('assets').joinpath('datasets')
-        self.data_type_dict = {'Close': np.float32}
+        self.data_type_dict = {'Open': np.float32}
 
     def load_data(self, dataset: CryptoDataset) -> pd.DataFrame:
         """
