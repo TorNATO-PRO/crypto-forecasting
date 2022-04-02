@@ -58,21 +58,31 @@ preddate = '2022-01-01'
 data_loader = DataLoader()
 dataset = data_loader.load_data(CryptoDataset.BITCOIN)
 
+
+header = '#########################################'
+oracle_msg = 'Learning using Oracle'
+oracle_pad_len = (len(header) - len(oracle_msg) - 2) // 2
+custom_msg = 'Learning using Custom Model'
+custom_pad_len = (len(header) - len(custom_msg) - 2) // 2
+summary_msg = 'Learning using Summary'
+summary_pad_len = (len(header) - len(summary_msg) - 2) // 2
+
+
 print("#########################################")
-print("# Learning using Oracle")
+print('#' + oracle_pad_len * ' ' + oracle_msg +  oracle_pad_len * ' ' + '#')
 print("#########################################")
 _, oracle_model = oracle.train_model(dataset, startdate, enddate, params_oracle)
 ora_preds, buy_hold_preds = oracle.evaluate(dataset, enddate, preddate, params_oracle, oracle_model)
 
 
 print("#########################################")
-print("# Learning using Custom Model")
+print('#' + custom_pad_len * ' ' + custom_msg +  custom_pad_len * ' ' + '#')
 print("#########################################")
 _, custom_model = custom.train_model(dataset, startdate, enddate, params_custom, ['Open'])
 cus_preds = custom.evaluate(dataset, enddate, preddate, params_custom, ['Open'], custom_model)
 
 print("#########################################")
-print("# Summary")
+print('#' + summary_pad_len * ' ' + summary_msg +  summary_pad_len * ' ' + '#')
 print("#########################################")
 d = [ ["Buy and Hold", round(buy_hold_preds[-1], 4), np.mean(buy_hold_preds)],
      ["Oracle", round(ora_preds[-1], 4), np.mean(ora_preds)],
