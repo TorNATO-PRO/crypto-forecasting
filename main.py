@@ -102,6 +102,7 @@ print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 assert len(ora_preds) == len(buy_hold_preds) == len(cus_preds)
 
 # plotting logic
+plt.figure(figsize=(8, 6)) 
 plt.title(
     f'Trading evaluation from {(pd.Timestamp(end_pred_date) - pd.Timedelta(days=len(ora_preds))).strftime("%m/%d/%y")} to {pd.Timestamp(end_pred_date).strftime("%m/%d/%y")} on {str(crypto_dataset)}'
 )
