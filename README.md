@@ -16,9 +16,13 @@ We are training a deep learning model to find the optimal trading strategy on th
 Make sure that you have Anaconda or Miniconda installed, or something similar.
 
 `$ git clone https://github.com/TorNATO-PRO/crypto-forecasting.git`
+
 `$ cd crypto-forecasting`
+
 `$ conda env create -f environment.yml`
+
 `$ conda activate crypto`
+
 `(crypto) $ python main.py`
 
 ### Docker
@@ -26,8 +30,11 @@ Make sure that you have Anaconda or Miniconda installed, or something similar.
 Ensure that Docker is installed.
 
 `$ git clone https://github.com/TorNATO-PRO/crypto-forecasting.git`
+
 `$ cd crypto-forecasting`
+
 `$ docker build -it .`
+
 `$ docker run crypto`
 
 ------
