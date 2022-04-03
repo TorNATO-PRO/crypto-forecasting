@@ -1,5 +1,5 @@
 ---
-title: Finding the Optimal Cyptocurrency Trading Strategy using Deep Learning
+title: Finding the Optimal Cryptocurrency Trading Strategy using Deep Learning
 authors: Nathan Waltz, Funso Oje, Hongjin Zhang
 ---
 
