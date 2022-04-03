@@ -1,8 +1,6 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 import os
-from matplotlib import pyplot as plt
-import numpy as np
 import pandas as pd
 from scipy.stats import norm
 from torch import device, nn, Tensor
@@ -245,7 +243,7 @@ def train_model(data: pd.DataFrame,
 
     # train the model
     val_losses = []
-    for e in range(num_epochs):
+    for e in range(1, num_epochs + 1):
         model.train()
         predicted = model(train_list, index_train)
         loss = criterion(predicted, price_train)
@@ -353,7 +351,7 @@ def evaluate(data: pd.DataFrame,
     with torch.no_grad():
         trades = model(feature_list, index)
         # Rounded Trades
-        trades = torch.round(trades * 100) / 100
+        trades = torch.round(trades)
 
         #print(trades)
 
@@ -376,4 +374,4 @@ def evaluate(data: pd.DataFrame,
         # plt.legend()
         # plt.show()
 
-    return cumsum_return
+    return cumsum_return, trades

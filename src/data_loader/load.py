@@ -7,15 +7,21 @@ from pathlib import Path
 
 import pandas as pd
 import numpy as np
-from enum import Enum
 
 
-class CryptoDataset(Enum):
+class CryptoDataset:
     """
-    An enum that maps the name to a string.
+    Dataset class.
     """
-    BITCOIN = 'BTC-USD.csv'
-    ETHEREUM = 'ETH-USD.csv'
+    def __init__(self, name: str, dataset_name: str) -> None:
+        self.name = name
+        self.dataset_name = dataset_name
+
+    def __str__(self) -> str:
+        return self.name
+
+    def get_dataset_name(self) -> str:
+        return self.dataset_name
 
 
 class DataLoader:
@@ -37,7 +43,7 @@ class DataLoader:
         :param dataset: The type of CryptoDataset to load.
         :return: A dataframe that corresponds to that dataset.
         """
-        path = self._data_path.joinpath(dataset.value)
+        path = self._data_path.joinpath(dataset.get_dataset_name())
         df: pd.DataFrame = pd.read_csv(path, parse_dates=['Date'], index_col='Date')
         df.astype({col: np.float32 for col in df.columns})
         return df

@@ -1,3 +1,4 @@
+from datetime import datetime
 import random
 import numpy as np
 import torch
@@ -50,13 +51,15 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 # dates
-startdate = '2018-01-01'
-enddate = '2021-01-01'
-preddate = '2022-01-01'
+start_date = '2018-01-01'
+end_date = '2021-01-01'
+start_pred_date = '2021-01-01'
+end_pred_date = '2022-04-01'
 
 
 data_loader = DataLoader()
-dataset = data_loader.load_data(CryptoDataset.BITCOIN)
+crypto_dataset = CryptoDataset('BITCOIN', 'BTC-USD.csv')
+dataset = data_loader.load_data(crypto_dataset)
 
 
 header = '#########################################'
@@ -71,15 +74,22 @@ summary_pad_len = (len(header) - len(summary_msg) - 2) // 2
 print("#########################################")
 print('#' + oracle_pad_len * ' ' + oracle_msg +  oracle_pad_len * ' ' + '#')
 print("#########################################")
-_, oracle_model = oracle.train_model(dataset, startdate, enddate, params_oracle)
-ora_preds, buy_hold_preds = oracle.evaluate(dataset, enddate, preddate, params_oracle, oracle_model)
+_, oracle_model = oracle.train_model(dataset, start_date, end_date, params_oracle)
+ora_preds, buy_hold_preds, ora_trades = oracle.evaluate(dataset, start_pred_date, end_pred_date, params_oracle, oracle_model)
 
+d = [[f'Day {day:>3f}', action] for day, action in enumerate(ora_trades)]
+df = pd.DataFrame(d, columns = ['Day of Trading', 'Shares Bought'])
+print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
 
 print("#########################################")
 print('#' + custom_pad_len * ' ' + custom_msg +  custom_pad_len * ' ' + '#')
 print("#########################################")
-_, custom_model = custom.train_model(dataset, startdate, enddate, params_custom, ['Open'])
-cus_preds = custom.evaluate(dataset, enddate, preddate, params_custom, ['Open'], custom_model)
+_, custom_model = custom.train_model(dataset, start_date, end_date, params_custom, ['Open'])
+cus_preds, cus_trades = custom.evaluate(dataset, start_pred_date, end_pred_date, params_custom, ['Open'], custom_model)
+
+d = [[f'Day {day}', action] for day, action in enumerate(cus_trades)]
+df = pd.DataFrame(d, columns = ['Day of Trading', 'Shares Bought'])
+print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
 
 print("#########################################")
 print('#' + summary_pad_len * ' ' + summary_msg +  summary_pad_len * ' ' + '#')
@@ -94,10 +104,17 @@ print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
 print("Press any key to show plot")
 input()
 
-plt.title(f'Trading evaluation from {enddate} to {preddate}')
+# sanity check
+assert(len(ora_preds) == len(buy_hold_preds) == len(cus_preds))
+
+# plotting logic
+plt.title(f'Trading evaluation from {start_pred_date} to {end_pred_date} on {str(crypto_dataset)}')
 plt.plot(ora_preds, label='Oracle Returns')
 plt.plot(buy_hold_preds, label='Buy and Hold Returns')
 plt.plot(cus_preds, label='Model Returns')
+plt.xlabel('Day of Trading')
+plt.ylabel('Model Returns (USD)')
+plt.xticks(rotation=45)
 plt.axhline(y=0, color='black', linestyle='--')
 plt.legend()
 plt.show()
