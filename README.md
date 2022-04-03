@@ -7,7 +7,7 @@ authors: Nathan Waltz, Funso Oje, Hongjin Zhang
 
 ## Description
 
-We are training a deep learning model to find the optimal trading strategy on the BTC dataset, which can be found at [^yahoo-finance]. An important assumption that we are making is that there are **no fees**.
+We are training a deep learning model to find the optimal trading strategy on the BTC dataset [^yahoo-finance]. An important assumption that we are making is that there are **no fees**.
 
 ![Model Returns](assets/images/CryptoModelReturns.png)
 
