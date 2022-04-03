@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 import random
 import numpy as np
@@ -103,7 +102,7 @@ print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 assert len(ora_preds) == len(buy_hold_preds) == len(cus_preds)
 
 # plotting logic
-plt.figure(figsize=(8, 6)) 
+plt.figure(figsize=(8, 6))
 plt.title(
     f'Trading evaluation from {(pd.Timestamp(end_pred_date) - pd.Timedelta(days=len(ora_preds))).strftime("%m/%d/%y")} to {pd.Timestamp(end_pred_date).strftime("%m/%d/%y")} on {str(crypto_dataset)}'
 )
@@ -115,5 +114,5 @@ plt.ylabel("Model Returns (USD)")
 plt.xticks(rotation=45)
 plt.axhline(y=0, color="black", linestyle="--")
 plt.legend()
-plt.savefig(os.path.join('assets', 'images', 'CryptoModelReturns.png'))
+plt.savefig(os.path.join("assets", "images", "CryptoModelReturns.png"))
 plt.show()

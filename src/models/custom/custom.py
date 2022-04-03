@@ -80,7 +80,7 @@ class Custom(nn.Module):
         super(Custom, self).__init__()
 
         # create a list of LSTMs
-        rnn_dict: Dict[str, nn.RNN] = {}
+        rnn_dict: Dict[str, nn.LSTM] = {}
         for feature in features:
             rnn = nn.LSTM(
                 input_size=feature.input_size,
@@ -115,7 +115,6 @@ class Custom(nn.Module):
 
         :param features: The input features (closing, etc...).
         :param indicators: Trade indicators.
-        :param value_at_risk: The value at risk.
         :return: An output tensor which results after the input data
                  goes through the model. This is our prediction for
                  the number of shares to buy.
@@ -189,6 +188,7 @@ def train_model(
                        be included in any time window.
     :param end_date: The last date that can be included in any time window.
     :param parameters: The model's hyperparameters.
+    :param columns: The columns to include.
     :param window_size: The window size, defaults to 40.
     :param num_epochs: The number of training epochs to use, defaults to 500.
     :param train_val_ratio: The ratio of training data to validation data, defaults
@@ -297,7 +297,7 @@ def evaluate(
     columns: List[str],
     model: nn.Module = None,
     window_size: int = 40,
-) -> None:
+) -> Tuple[List[int], Tensor]:
     """
     Evaluates the model.
 
@@ -306,6 +306,7 @@ def evaluate(
     :param end_date: The date to end with.
     :param data: The data that is being used to train the model.
     :param parameters: Model hyperparameters.
+    :param columns: The columns to include.
     :param window_size: The window size.
     :return: Nothing.
     """

@@ -15,8 +15,8 @@ def buy_and_hold(price_diff: Tensor) -> Tensor:
     Args:
 
     :param price_diff: The price difference from each day. The first
-    element cooresponds to the price difference of the second - first days,
-    then the second element cooresponds to the price difference between the
-    third - second days + second - first days, and so fourth.
+    element corresponds to the price difference of the second - first days,
+    then the second element corresponds to the price difference between the
+    third - second days + second - first days, and so forth.
     """
     return [0] + torch.cumsum(price_diff, dim=0).view(-1).tolist()

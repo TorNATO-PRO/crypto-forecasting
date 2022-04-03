@@ -32,7 +32,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import os
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Union, List, Any
 
 import pandas as pd
 
@@ -42,6 +42,7 @@ import torch.nn as nn
 
 from collections import OrderedDict
 
+from torch import Tensor
 from torch.optim import Adam
 from src.models.baseline.baseline import buy_and_hold
 from src.models.loss import NegativeMeanReturnLoss
@@ -211,7 +212,7 @@ def evaluate(
     parameters: Dict,
     model: nn.Module = None,
     window_size: int = 40,
-) -> None:
+) -> Tuple[List[int], Tensor, Tensor]:
     """
     Evaluates the model.
 
