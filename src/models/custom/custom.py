@@ -10,7 +10,6 @@ from torch.optim import Adam
 from typing import Dict, Iterable, List
 
 import torch
-from src.models.baseline.baseline import buy_and_hold
 from src.models.loss import NegativeMeanReturnLoss
 
 from src.models.utils import get_indicator, sliding_window
