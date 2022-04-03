@@ -92,7 +92,7 @@ def train_model(
     window_size: int = 40,
     num_epochs: int = 500,
     train_val_ratio: float = 0.8,
-) -> Tuple[np.float32, nn.Module]:
+) -> Tuple[float, nn.Module]:
     """
     Trains the model.
 

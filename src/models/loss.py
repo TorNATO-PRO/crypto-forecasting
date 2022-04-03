@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 
-from scipy.stats import norm
-
 """
 The loss functions that will be used throughout our application.
 """

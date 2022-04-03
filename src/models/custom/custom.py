@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.stats import norm
 from torch import device, nn, Tensor
 from torch.optim import Adam
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 import torch
 from src.models.loss import NegativeMeanReturnLoss
@@ -177,7 +177,7 @@ def train_model(
     window_size: int = 40,
     num_epochs: int = 500,
     train_val_ratio: float = 0.8,
-):
+) -> Tuple[float, nn.Module]:
     """
     Trains the custom model using the provided data, start_date, and end_date.
     This is the "heart" of what we are doing, hyperparameter tuning is very important!
