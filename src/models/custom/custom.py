@@ -261,8 +261,8 @@ def train_model(data: pd.DataFrame,
             val_loss = criterion(val_predicted, price_val)
             val_losses.append(val_loss)
 
-        if e % 100 == 0:
-            print(f'Epoch {e} | train: {loss.item()}, '
+        if (e+1) % 100 == 0:
+            print(f'Epoch {e+1} | train: {loss.item()}, '
                   f'val: {val_loss.item()}')
 
     return torch.mean(torch.tensor(val_losses)).item(), model
