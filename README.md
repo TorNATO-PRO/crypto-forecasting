@@ -1,11 +1,45 @@
 ---
-title: Short-term Cryptocurrency Price Prediction
+title: Finding the Optimal Cyptocurrency Trading Strategy using Deep Learning
 authors: Nathan Waltz, Funso Oje, Hongjin Zhang
 ---
 
-# Short-term Crypto-currency Price Prediction
+# Finding the Optimal Cyptocurrency Trading Strategy using Deep Learning
 
-We will be utilizing a variety of time series forecasting techniques and testing their efficacy on the Yahoo finance dataset [^yahoo-finance]. 
+## Description
+
+We are training a deep learning model to find the optimal trading strategy on the BTC dataset, which can be found at [^yahoo-finance]. An important assumption that we are making is that there are **no fees**.
+
+## How to run
+
+### Conda
+
+Make sure that you have Anaconda or Miniconda installed, or something similar.
+
+`$ git clone https://github.com/TorNATO-PRO/crypto-forecasting.git`
+
+`$ cd crypto-forecasting`
+
+`$ conda env create -f environment.yml`
+
+`$ conda activate crypto`
+
+`(crypto) $ python main.py`
+
+### Docker
+
+Ensure that Docker is installed.
+
+`$ git clone https://github.com/TorNATO-PRO/crypto-forecasting.git`
+
+`$ cd crypto-forecasting`
+
+`$ docker build -it .`
+
+`$ docker run crypto`
+
+------
+
+## TODO
 
 - [x] Create basic directory structure
 - [X] Implement Baseline
@@ -17,7 +51,7 @@ We will be utilizing a variety of time series forecasting techniques and testing
 - [ ] Train on all datasets
 - [ ] Train on more datasets
 
-Our project is structured as follows
+## Project Structure
 
 ```
 .
