@@ -77,7 +77,7 @@ print("#########################################")
 _, oracle_model = oracle.train_model(dataset, start_date, end_date, params_oracle)
 ora_preds, buy_hold_preds, ora_trades = oracle.evaluate(dataset, start_pred_date, end_pred_date, params_oracle, oracle_model)
 
-d = [[f'Day {day:>3f}', action] for day, action in enumerate(ora_trades)]
+d = [[f'Day {day}', action] for day, action in enumerate(ora_trades)]
 df = pd.DataFrame(d, columns = ['Day of Trading', 'Shares Bought'])
 print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
 
