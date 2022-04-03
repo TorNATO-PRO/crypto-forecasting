@@ -49,15 +49,13 @@ crypto_dataset = CryptoDataset("BITCOIN", "BTC-USD.csv")
 dataset = data_loader.load_data(crypto_dataset)
 
 oracle_msg = "Learning using Oracle"
-oracle_pad_len = (len(oracle_msg)) // 2 - 1
+pad_len = 4
 custom_msg = "Learning using Custom Model"
-custom_pad_len = (len(custom_msg)) // 2 - 1
 summary_msg = "Learning using Summary"
-summary_pad_len = (len(summary_msg)) // 2 - 1
 
-print("#" * len(oracle_msg) * 2)
-print("#" + oracle_pad_len * " " + oracle_msg + oracle_pad_len * " " + "#")
-print("#" * len(oracle_msg) * 2)
+print("#" * (len(oracle_msg) + 2 * pad_len + 2))
+print("#" + pad_len * " " + oracle_msg + pad_len * " " + "#")
+print("#" * (len(oracle_msg) + 2 * pad_len + 2))
 
 _, oracle_model = oracle.train_model(dataset, start_date, end_date, params_oracle)
 ora_preds, buy_hold_preds, ora_trades = oracle.evaluate(
@@ -71,9 +69,9 @@ d = [
 df = pd.DataFrame(d, columns=["Day of Trading", "Shares Owned", "Model Profits (USD)"])
 print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 
-print("#" * len(custom_msg) * 2)
-print("#" + custom_pad_len * " " + custom_msg + custom_pad_len * " " + "#")
-print("#" * len(custom_msg) * 2)
+print("#" * (len(custom_msg) + 2 * pad_len + 2))
+print("#" + pad_len * " " + custom_msg + pad_len * " " + "#")
+print("#" * (len(custom_msg) + 2 * pad_len + 2))
 _, custom_model = custom.train_model(
     dataset, start_date, end_date, params_custom, ["Open"]
 )
@@ -88,9 +86,9 @@ d = [
 df = pd.DataFrame(d, columns=["Day of Trading", "Shares Owned", "Model Profits (USD)"])
 print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 
-print("#" * len(summary_msg) * 2)
-print("#" + summary_pad_len * " " + summary_msg + summary_pad_len * " " + "#")
-print("#" * len(summary_msg) * 2)
+print("#" * (len(summary_msg) + 2 * pad_len + 2))
+print("#" + pad_len * " " + summary_msg + pad_len * " " + "#")
+print("#" * (len(summary_msg) + 2 * pad_len + 2))
 d = [
     ["Buy and Hold", round(buy_hold_preds[-1], 4), np.mean(buy_hold_preds)],
     ["Oracle", round(ora_preds[-1], 4), np.mean(ora_preds)],
