@@ -6,11 +6,34 @@ Production-Ready Prediction Solutions." with ISBN-13: 978-9391392574.
 
 The codebase has an MIT license, so I am assuming it is safe to use:
 https://github.com/bpbpublications/Time-Series-Forecasting-using-Deep-Learning/tree/main/Chapter%2007/stock
+
+Pasting the license here just in case :)
+
+MIT License
+
+Copyright (c) 2021 BPB Publications
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 """
 import os
-from typing import List, Tuple, Dict
+from typing import Tuple, Dict
 
-import numpy as np
 import pandas as pd
 
 # trust me, we need this for the trading indicators
@@ -19,7 +42,6 @@ import torch.nn as nn
 
 from collections import OrderedDict
 
-from scipy.stats import norm
 from torch.optim import Adam
 from src.models.baseline.baseline import buy_and_hold
 from src.models.loss import NegativeMeanReturnLoss
@@ -27,7 +49,6 @@ from src.models.utils import get_indicator, sliding_window
 
 # check whether it can run on GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# device = torch.device('cpu')
 
 
 class Oracle(nn.Module):
