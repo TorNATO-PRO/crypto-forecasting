@@ -18,14 +18,8 @@ params_oracle = {
     "rnn_hidden_size": 24,
     "ind_hidden_size": 4,
     "des_size": 16,
-    "ind1": {
-        "_name": "cmo",
-        "length": 20
-    },
-    "ind2": {
-        "_name": "cci",
-        "length": 5
-    }
+    "ind1": {"_name": "cmo", "length": 20},
+    "ind2": {"_name": "cci", "length": 5},
 }
 
 params_custom = {
@@ -34,14 +28,8 @@ params_custom = {
     "rnn_agg_hidden_size": 12,
     "trading_ind_hidden_size": 16,
     "linear_agg_hidden_size": 4,
-    "ind1": {
-        "_name": "cmo",
-        "length": 5
-    },
-    "ind2": {
-        "_name": "cmo",
-        "length": 10
-    }
+    "ind1": {"_name": "cmo", "length": 5},
+    "ind2": {"_name": "cmo", "length": 10},
 }
 
 # set seed
@@ -51,67 +39,81 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 # dates
-start_date = '2018-01-01'
-end_date = '2021-01-01'
-start_pred_date = '2021-01-01'
-end_pred_date = '2022-01-01'
+start_date = "2018-01-01"
+end_date = "2021-01-01"
+start_pred_date = "2021-01-01"
+end_pred_date = "2022-01-01"
 
 data_loader = DataLoader()
-crypto_dataset = CryptoDataset('BITCOIN', 'BTC-USD.csv')
+crypto_dataset = CryptoDataset("BITCOIN", "BTC-USD.csv")
 dataset = data_loader.load_data(crypto_dataset)
 
-oracle_msg = 'Learning using Oracle'
+oracle_msg = "Learning using Oracle"
 oracle_pad_len = (len(oracle_msg)) // 2 - 1
-custom_msg = 'Learning using Custom Model'
+custom_msg = "Learning using Custom Model"
 custom_pad_len = (len(custom_msg)) // 2 - 1
-summary_msg = 'Learning using Summary'
+summary_msg = "Learning using Summary"
 summary_pad_len = (len(summary_msg)) // 2 - 1
 
 print("#" * len(oracle_msg) * 2)
-print('#' + oracle_pad_len * ' ' + oracle_msg +  oracle_pad_len * ' ' + '#')
+print("#" + oracle_pad_len * " " + oracle_msg + oracle_pad_len * " " + "#")
 print("#" * len(oracle_msg) * 2)
 
 _, oracle_model = oracle.train_model(dataset, start_date, end_date, params_oracle)
-ora_preds, buy_hold_preds, ora_trades = oracle.evaluate(dataset, start_pred_date, end_pred_date, params_oracle, oracle_model)
+ora_preds, buy_hold_preds, ora_trades = oracle.evaluate(
+    dataset, start_pred_date, end_pred_date, params_oracle, oracle_model
+)
 
-d = [[f'Day {day}', action, returns] for day, (action, returns) in enumerate(zip(ora_trades, ora_preds))]
-df = pd.DataFrame(d, columns = ['Day of Trading', 'Shares Owned', 'Model Profits (USD)'])
-print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+d = [
+    [f"Day {day}", action, returns]
+    for day, (action, returns) in enumerate(zip(ora_trades, ora_preds))
+]
+df = pd.DataFrame(d, columns=["Day of Trading", "Shares Owned", "Model Profits (USD)"])
+print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 
 print("#" * len(custom_msg) * 2)
-print('#' + custom_pad_len * ' ' + custom_msg +  custom_pad_len * ' ' + '#')
+print("#" + custom_pad_len * " " + custom_msg + custom_pad_len * " " + "#")
 print("#" * len(custom_msg) * 2)
-_, custom_model = custom.train_model(dataset, start_date, end_date, params_custom, ['Open'])
-cus_preds, cus_trades = custom.evaluate(dataset, start_pred_date, end_pred_date, params_custom, ['Open'], custom_model)
+_, custom_model = custom.train_model(
+    dataset, start_date, end_date, params_custom, ["Open"]
+)
+cus_preds, cus_trades = custom.evaluate(
+    dataset, start_pred_date, end_pred_date, params_custom, ["Open"], custom_model
+)
 
-d = [[f'Day {day}', action, returns] for day, (action, returns) in enumerate(zip(cus_trades, cus_preds))]
-df = pd.DataFrame(d, columns = ['Day of Trading', 'Shares Owned', 'Model Profits (USD)'])
-print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+d = [
+    [f"Day {day}", action, returns]
+    for day, (action, returns) in enumerate(zip(cus_trades, cus_preds))
+]
+df = pd.DataFrame(d, columns=["Day of Trading", "Shares Owned", "Model Profits (USD)"])
+print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 
 print("#" * len(summary_msg) * 2)
-print('#' + summary_pad_len * ' ' + summary_msg +  summary_pad_len * ' ' + '#')
+print("#" + summary_pad_len * " " + summary_msg + summary_pad_len * " " + "#")
 print("#" * len(summary_msg) * 2)
-d = [ ["Buy and Hold", round(buy_hold_preds[-1], 4), np.mean(buy_hold_preds)],
-     ["Oracle", round(ora_preds[-1], 4), np.mean(ora_preds)],
-     ["Custom", round(cus_preds[-1], 4), np.mean(cus_preds)]]
+d = [
+    ["Buy and Hold", round(buy_hold_preds[-1], 4), np.mean(buy_hold_preds)],
+    ["Oracle", round(ora_preds[-1], 4), np.mean(ora_preds)],
+    ["Custom", round(cus_preds[-1], 4), np.mean(cus_preds)],
+]
 
-df = pd.DataFrame(d, columns = ['Model','Final Return','Mean Return'])
-print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
-
-print("Press return to show plot")
-input()
+df = pd.DataFrame(d, columns=["Model", "Final Return", "Mean Return"])
+print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 
 # sanity check
-assert(len(ora_preds) == len(buy_hold_preds) == len(cus_preds))
+assert len(ora_preds) == len(buy_hold_preds) == len(cus_preds)
 
 # plotting logic
-plt.title(f'Trading evaluation from {(pd.Timestamp(end_pred_date) - pd.Timedelta(days=len(ora_preds))).strftime("%m/%d/%y")} to {pd.Timestamp(end_pred_date).strftime("%m/%d/%y")} on {str(crypto_dataset)}')
-plt.plot(ora_preds, label='Oracle Returns')
-plt.plot(buy_hold_preds, label='Buy and Hold Returns')
-plt.plot(cus_preds, label='Model Returns')
-plt.xlabel('Day of Trading')
-plt.ylabel('Model Returns (USD)')
+plt.title(
+    f'Trading evaluation from {(pd.Timestamp(end_pred_date) - pd.Timedelta(days=len(ora_preds))).strftime("%m/%d/%y")} to {pd.Timestamp(end_pred_date).strftime("%m/%d/%y")} on {str(crypto_dataset)}'
+)
+plt.plot(ora_preds, label="Oracle Returns")
+plt.plot(buy_hold_preds, label="Buy and Hold Returns")
+plt.plot(cus_preds, label="Model Returns")
+plt.xlabel("Day of Trading")
+plt.ylabel("Model Returns (USD)")
 plt.xticks(rotation=45)
-plt.axhline(y=0, color='black', linestyle='--')
+plt.axhline(y=0, color="black", linestyle="--")
 plt.legend()
+plt.savefig("CryptoModelReturns.png")
 plt.show()

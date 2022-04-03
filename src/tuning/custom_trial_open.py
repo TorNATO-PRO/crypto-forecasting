@@ -15,10 +15,11 @@ random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 
+
 def prepare_custom(params: Dict) -> np.float32:
     data = DataLoader()
     dataset = data.load_data(CryptoDataset.BITCOIN)
-    val_min, _ = train_model(dataset, '2017-01-01', '2021-01-01', params, ['Open'])
+    val_min, _ = train_model(dataset, "2017-01-01", "2021-01-01", params, ["Open"])
     return val_min
 
 

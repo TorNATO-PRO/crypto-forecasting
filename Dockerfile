@@ -34,11 +34,12 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
 SHELL ["conda", "run", "-n", "crypto", "/bin/bash", "-c"]
 
 # Copy the garbage
-COPY src/ .
-COPY assets/ .
+COPY src/ ./src
+COPY assets/ ./assets
+COPY main.py .
 COPY .gitignore .
 COPY README.md .
 COPY LICENSE .
 
 # run main
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "crypto", "python", "./main.py"]
+ENTRYPOINT ["conda", "run", "-n", "crypto", "python", "./main.py"]

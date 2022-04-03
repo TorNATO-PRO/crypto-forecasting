@@ -7,12 +7,12 @@ from scipy.stats import norm
 The loss functions that will be used throughout our application.
 """
 
+
 class NegativeMeanReturnLoss(nn.Module):
     """
     Negative mean return loss, negative to maximize the
     mean return on investments.
     """
-
 
     def __init__(self):
         """

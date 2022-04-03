@@ -13,7 +13,7 @@ from src.models.loss import NegativeMeanReturnLoss
 from src.models.utils import get_indicator, sliding_window
 
 # run on CUDA iff it is available
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 @dataclass(frozen=True)
@@ -21,6 +21,7 @@ class CustomFeatureData:
     """
     A class for keeping track of feature-related data.
     """
+
     feature_name: str
     input_size: int
     hidden_size: int
@@ -32,9 +33,12 @@ class CustomFeature:
     A class for keeping track of custom features.
     """
 
-    def __init__(self, data: Tensor, feature_name: str, input_size: int, hidden_size: int) -> None:
+    def __init__(
+        self, data: Tensor, feature_name: str, input_size: int, hidden_size: int
+    ) -> None:
         self.feature_data = CustomFeatureData(
-            feature_name=feature_name, input_size=input_size, hidden_size=hidden_size)
+            feature_name=feature_name, input_size=input_size, hidden_size=hidden_size
+        )
         self.data = data
 
 
@@ -52,12 +56,14 @@ class Custom(nn.Module):
     Our custom model for performing buy/sell predictions.
     """
 
-    def __init__(self,
-                 features: Iterable[CustomFeatureData],
-                 trading_indicator_input_size: int,
-                 rnn_aggregation_hidden_size: int,
-                 trading_indicator_hidden_size: int,
-                 linear_aggregator_hidden_size: int):
+    def __init__(
+        self,
+        features: Iterable[CustomFeatureData],
+        trading_indicator_input_size: int,
+        rnn_aggregation_hidden_size: int,
+        trading_indicator_hidden_size: int,
+        linear_aggregator_hidden_size: int,
+    ):
         """
         Constructs a new instance of the Custom class.
 
@@ -80,7 +86,7 @@ class Custom(nn.Module):
                 input_size=feature.input_size,
                 hidden_size=feature.hidden_size,
                 num_layers=1,
-                batch_first=True
+                batch_first=True,
             ).to(device=device)
             rnn.name = feature.feature_name
             rnn_dict[feature.feature_name] = rnn
@@ -88,11 +94,16 @@ class Custom(nn.Module):
         # define the model's layers
         self.rnn_dict = rnn_dict
         self.rnn_aggregation = nn.Linear(
-            sum(map(lambda x: x.hidden_size * x.num_layers, self.rnn_dict.values())), rnn_aggregation_hidden_size)
+            sum(map(lambda x: x.hidden_size * x.num_layers, self.rnn_dict.values())),
+            rnn_aggregation_hidden_size,
+        )
         self.linear_indicator = nn.Linear(
-            trading_indicator_input_size, trading_indicator_hidden_size)
+            trading_indicator_input_size, trading_indicator_hidden_size
+        )
         self.linear_aggregator = nn.Linear(
-            trading_indicator_hidden_size + rnn_aggregation_hidden_size, linear_aggregator_hidden_size)
+            trading_indicator_hidden_size + rnn_aggregation_hidden_size,
+            linear_aggregator_hidden_size,
+        )
         self.final_linear_layer = nn.Linear(linear_aggregator_hidden_size, 1)
 
     def forward(self, features: Iterable[CustomFeature], indicators: Tensor) -> Tensor:
@@ -114,25 +125,28 @@ class Custom(nn.Module):
             feature_data = feature.feature_data
             if feature_data.feature_name not in self.rnn_dict.keys():
                 raise FeatureMissingException(
-                    f'The feature [<{feature_data.feature_name}>] does not exist!')
+                    f"The feature [<{feature_data.feature_name}>] does not exist!"
+                )
 
             # h has dim = (num_layers, h_out)
             _, (h, _) = self.rnn_dict[feature_data.feature_name](feature.data)
             rnn_outputs.append(h)
 
-        concatenated_outputs = torch.cat(
-            tuple(map(lambda h: h[0], rnn_outputs)), dim=1)
-        linear_from_rnn = torch.relu(
-            self.rnn_aggregation(concatenated_outputs))
+        concatenated_outputs = torch.cat(tuple(map(lambda h: h[0], rnn_outputs)), dim=1)
+        linear_from_rnn = torch.relu(self.rnn_aggregation(concatenated_outputs))
         linear_indicators = torch.relu(self.linear_indicator(indicators))
         indicators_and_linear_output = torch.cat(
-            (linear_from_rnn, linear_indicators), dim=1)
+            (linear_from_rnn, linear_indicators), dim=1
+        )
         linear_aggregator = torch.relu(
-            self.linear_aggregator(indicators_and_linear_output))
+            self.linear_aggregator(indicators_and_linear_output)
+        )
         return torch.sigmoid(self.final_linear_layer(linear_aggregator)).view(-1)
 
 
-def create_feature_list(data: Tensor, columns: Iterable[str], hidden_size: int) -> List[CustomFeature]:
+def create_feature_list(
+    data: Tensor, columns: Iterable[str], hidden_size: int
+) -> List[CustomFeature]:
     """
     Creates a list from passed parameters of features. Specific to
     this function.
@@ -143,17 +157,27 @@ def create_feature_list(data: Tensor, columns: Iterable[str], hidden_size: int) 
     :param columns: The columns (features) to utilize.
     :param hidden_size: The hidden size to use for the RNN.
     """
-    return [CustomFeature(data[:, :, i*2:(i+1)*2], f'{elem.strip().replace(" ", "_").lower()}', 2, hidden_size) for i, elem in enumerate(columns)]
+    return [
+        CustomFeature(
+            data[:, :, i * 2 : (i + 1) * 2],
+            f'{elem.strip().replace(" ", "_").lower()}',
+            2,
+            hidden_size,
+        )
+        for i, elem in enumerate(columns)
+    ]
 
 
-def train_model(data: pd.DataFrame,
-                start_date: str,
-                end_date: str,
-                parameters: Dict,
-                columns: List[str],
-                window_size: int = 40,
-                num_epochs: int = 500,
-                train_val_ratio: float = 0.8):
+def train_model(
+    data: pd.DataFrame,
+    start_date: str,
+    end_date: str,
+    parameters: Dict,
+    columns: List[str],
+    window_size: int = 40,
+    num_epochs: int = 500,
+    train_val_ratio: float = 0.8,
+):
     """
     Trains the custom model using the provided data, start_date, and end_date.
     This is the "heart" of what we are doing, hyperparameter tuning is very important!
@@ -176,26 +200,26 @@ def train_model(data: pd.DataFrame,
     train_length = int(ts_len * train_val_ratio)
 
     # get the hyperparameters
-    learning_rate = parameters['lr']
-    rnn_hidden_size = parameters['rnn_hidden_size']
-    rnn_aggregation_hidden_size = parameters['rnn_agg_hidden_size']
-    linear_aggregator_hidden_size = parameters['linear_agg_hidden_size']
-    trading_indicator_hidden_size = parameters['trading_ind_hidden_size']
-    ind1_name = parameters['ind1']['_name']
-    ind2_name = parameters['ind2']['_name']
+    learning_rate = parameters["lr"]
+    rnn_hidden_size = parameters["rnn_hidden_size"]
+    rnn_aggregation_hidden_size = parameters["rnn_agg_hidden_size"]
+    linear_aggregator_hidden_size = parameters["linear_agg_hidden_size"]
+    trading_indicator_hidden_size = parameters["trading_ind_hidden_size"]
+    ind1_name = parameters["ind1"]["_name"]
+    ind2_name = parameters["ind2"]["_name"]
 
     # an ordered dictionary of data
     data_source = OrderedDict()
     for name in columns:
         key_prefix = name.strip().replace(" ", "_").lower()
-        data_source[f'{key_prefix}_diff'] = data[name] - data[name].shift(1)
-        data_source[f'{key_prefix}_roc'] = data[name] / data[name].shift(1)
+        data_source[f"{key_prefix}_diff"] = data[name] - data[name].shift(1)
+        data_source[f"{key_prefix}_roc"] = data[name] / data[name].shift(1)
 
-    data_source['ind1'] = get_indicator(data, ind1_name, parameters['ind1'])
-    data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
+    data_source["ind1"] = get_indicator(data, ind1_name, parameters["ind1"])
+    data_source["ind2"] = get_indicator(data, ind2_name, parameters["ind2"])
 
     # add value at risk as an indicator
-    pct_changes = data['Close'].pct_change()
+    pct_changes = data["Close"].pct_change()
     value_at_risk = []
     for i in range(len(pct_changes)):
         mean = pct_changes[:i].mean()
@@ -203,15 +227,14 @@ def train_model(data: pd.DataFrame,
         value_at_risk_pct = abs(norm.ppf(0.01, mean, std))
         value_at_risk.append(value_at_risk_pct)
 
-    data_source['var'] = pd.Series(value_at_risk)
-    data_source['var'].index = pct_changes.index
+    data_source["var"] = pd.Series(value_at_risk)
+    data_source["var"].index = pct_changes.index
 
     for k, v in data_source.items():
         data_source[k] = v[v.index >= start_date].dropna().values
 
     # aggregate all of that data
-    data_aggregation = [[v[i] for _, v in data_source.items()]
-                        for i in range(ts_len)]
+    data_aggregation = [[v[i] for _, v in data_source.items()] for i in range(ts_len)]
 
     x, y = sliding_window(data_aggregation, window_size)
     x_train, y_train = x[:train_length], y[:train_length]
@@ -225,16 +248,18 @@ def train_model(data: pd.DataFrame,
     train_list = create_feature_list(x_train, columns, rnn_hidden_size)
     val_list = create_feature_list(x_val, columns, rnn_hidden_size)
 
-    index_train, index_val = x_train[:, -1, 2 *
-                                     len(columns):], x_val[:, -1, 2 * len(columns):]
+    index_train, index_val = (
+        x_train[:, -1, 2 * len(columns) :],
+        x_val[:, -1, 2 * len(columns) :],
+    )
     price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
 
     model_params = {
-        'features': map(lambda feature: feature.feature_data, train_list),
-        'trading_indicator_input_size': 3,
-        'linear_aggregator_hidden_size': linear_aggregator_hidden_size,
-        'rnn_aggregation_hidden_size': rnn_aggregation_hidden_size,
-        'trading_indicator_hidden_size': trading_indicator_hidden_size
+        "features": map(lambda feature: feature.feature_data, train_list),
+        "trading_indicator_input_size": 3,
+        "linear_aggregator_hidden_size": linear_aggregator_hidden_size,
+        "rnn_aggregation_hidden_size": rnn_aggregation_hidden_size,
+        "trading_indicator_hidden_size": trading_indicator_hidden_size,
     }
 
     model: nn.Module = Custom(**model_params).to(device)
@@ -258,20 +283,21 @@ def train_model(data: pd.DataFrame,
             val_loss = criterion(val_predicted, price_val)
             val_losses.append(val_loss)
 
-        if (e+1) % 100 == 0:
-            print(f'Epoch {e+1} | train: {loss.item()}, '
-                  f'val: {val_loss.item()}')
+        if (e + 1) % 100 == 0:
+            print(f"Epoch {e+1} | train: {loss.item()}, " f"val: {val_loss.item()}")
 
     return torch.mean(torch.tensor(val_losses)).item(), model
 
 
-def evaluate(data: pd.DataFrame,
-             start_date: str,
-             end_date: str,
-             parameters: Dict,
-             columns: List[str],
-             model: nn.Module = None,
-             window_size: int = 40) -> None:
+def evaluate(
+    data: pd.DataFrame,
+    start_date: str,
+    end_date: str,
+    parameters: Dict,
+    columns: List[str],
+    model: nn.Module = None,
+    window_size: int = 40,
+) -> None:
     """
     Evaluates the model.
 
@@ -289,26 +315,26 @@ def evaluate(data: pd.DataFrame,
     ts_len = data[data.index > start_date].shape[0]
 
     # get the hyperparameters
-    rnn_hidden_size = parameters['rnn_hidden_size']
-    rnn_aggregation_hidden_size = parameters['rnn_agg_hidden_size']
-    linear_aggregator_hidden_size = parameters['linear_agg_hidden_size']
-    trading_indicator_hidden_size = parameters['trading_ind_hidden_size']
-    ind1_name = parameters['ind1']['_name']
-    ind2_name = parameters['ind2']['_name']
+    rnn_hidden_size = parameters["rnn_hidden_size"]
+    rnn_aggregation_hidden_size = parameters["rnn_agg_hidden_size"]
+    linear_aggregator_hidden_size = parameters["linear_agg_hidden_size"]
+    trading_indicator_hidden_size = parameters["trading_ind_hidden_size"]
+    ind1_name = parameters["ind1"]["_name"]
+    ind2_name = parameters["ind2"]["_name"]
 
     # an ordered dictionary of data
     data_source = OrderedDict()
     col_list = columns
     for name in col_list:
         key_prefix = name.strip().replace(" ", "_").lower()
-        data_source[f'{key_prefix}_diff'] = data[name] - data[name].shift(1)
-        data_source[f'{key_prefix}_roc'] = data[name] / data[name].shift(1)
+        data_source[f"{key_prefix}_diff"] = data[name] - data[name].shift(1)
+        data_source[f"{key_prefix}_roc"] = data[name] / data[name].shift(1)
 
-    data_source['ind1'] = get_indicator(data, ind1_name, parameters['ind1'])
-    data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
+    data_source["ind1"] = get_indicator(data, ind1_name, parameters["ind1"])
+    data_source["ind2"] = get_indicator(data, ind2_name, parameters["ind2"])
 
     # add value at risk as an indicator
-    pct_changes = data['Close'].pct_change()
+    pct_changes = data["Close"].pct_change()
     value_at_risk = []
     for i in range(len(pct_changes)):
         mean = pct_changes[:i].mean()
@@ -316,35 +342,34 @@ def evaluate(data: pd.DataFrame,
         value_at_risk_pct = abs(norm.ppf(0.01, mean, std))
         value_at_risk.append(value_at_risk_pct)
 
-    data_source['var'] = pd.Series(value_at_risk)
-    data_source['var'].index = pct_changes.index
+    data_source["var"] = pd.Series(value_at_risk)
+    data_source["var"].index = pct_changes.index
 
     for k, v in data_source.items():
         data_source[k] = v[v.index >= start_date].dropna().values
 
     # aggregate all of that data
-    data_aggregation = [[v[i] for _, v in data_source.items()]
-                        for i in range(ts_len)]
+    data_aggregation = [[v[i] for _, v in data_source.items()] for i in range(ts_len)]
 
     x, y = sliding_window(data_aggregation, window_size)
     x = torch.tensor(x).to(device).float()
     y = torch.tensor(y).to(device).float()
 
     feature_list = create_feature_list(x, col_list, rnn_hidden_size)
-    index = x[:, -1, 2 * len(col_list):]
+    index = x[:, -1, 2 * len(col_list) :]
     tomorrow_price_diff = y[:, :, 0].view(-1)
 
     model_params = {
-        'features': map(lambda feature: feature.feature_data, feature_list),
-        'trading_indicator_input_size': 3,
-        'linear_aggregator_hidden_size': linear_aggregator_hidden_size,
-        'rnn_aggregation_hidden_size': rnn_aggregation_hidden_size,
-        'trading_indicator_hidden_size': trading_indicator_hidden_size
+        "features": map(lambda feature: feature.feature_data, feature_list),
+        "trading_indicator_input_size": 3,
+        "linear_aggregator_hidden_size": linear_aggregator_hidden_size,
+        "rnn_aggregation_hidden_size": rnn_aggregation_hidden_size,
+        "trading_indicator_hidden_size": trading_indicator_hidden_size,
     }
 
     if model is None:
         model = Custom(**model_params).to(device)
-        model.load_state_dict(torch.load(f'{dir_path}/data/custom_best.pth'))
+        model.load_state_dict(torch.load(f"{dir_path}/data/custom_best.pth"))
 
     # evaluate the model
     model.eval()
@@ -353,19 +378,18 @@ def evaluate(data: pd.DataFrame,
         # Rounded Trades
         trades = torch.round(trades)
 
-        #print(trades)
+        # print(trades)
 
         # Calculating Absolute Returns
         abs_return = torch.mul(trades, tomorrow_price_diff)
-        cumsum_return = [0] + torch.cumsum(abs_return, dim=0) \
-            .view(-1).tolist()
+        cumsum_return = [0] + torch.cumsum(abs_return, dim=0).view(-1).tolist()
         # # Buy and Hold Strategy Returns
         # buy_and_hold_returns = buy_and_hold(tomorrow_price_diff)
 
         # print(f'Model Returns: {round(cumsum_return[-1], 4)}')
         # print(f'Model Mean returns: {np.mean(cumsum_return)}')
-        #print(f'Buy and Hold Returns: {round(buy_and_hold_returns[-1], 4)}')
-        #print(f'Buy and Hold Mean Returns: {np.mean(buy_and_hold_returns)}')
+        # print(f'Buy and Hold Returns: {round(buy_and_hold_returns[-1], 4)}')
+        # print(f'Buy and Hold Mean Returns: {np.mean(buy_and_hold_returns)}')
 
         # plt.title(f'Trading evaluation from {start_date} to {end_date}')
         # plt.plot(cumsum_return, label='Model Returns')

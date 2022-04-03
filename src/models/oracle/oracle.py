@@ -26,38 +26,41 @@ from src.models.loss import NegativeMeanReturnLoss
 from src.models.utils import get_indicator, sliding_window
 
 # check whether it can run on GPU
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device('cpu')
+
 
 class Oracle(nn.Module):
     """
     The Oracle, adapted from the Ivan Gridin's solution in 978-9391392574.
     """
 
-    def __init__(self,
-                 rnn_input_size: int,
-                 ind_input_size: int,
-                 rnn_type: str = 'gru',
-                 rnn_hidden_size: int = 16,
-                 ind_hidden_size: int = 4,
-                 des_size: int = 4):
+    def __init__(
+        self,
+        rnn_input_size: int,
+        ind_input_size: int,
+        rnn_type: str = "gru",
+        rnn_hidden_size: int = 16,
+        ind_hidden_size: int = 4,
+        des_size: int = 4,
+    ):
         """
         Constructs a new instance of the Oracle class.
         """
         super(Oracle, self).__init__()
-        self.oracle_model = 'Ivan\'s Alg Trader'
+        self.oracle_model = "Ivan's Alg Trader"
         rnn_params = {
-            'input_size': rnn_input_size,
-            'hidden_size': rnn_hidden_size,
-            'batch_first': True
+            "input_size": rnn_input_size,
+            "hidden_size": rnn_hidden_size,
+            "batch_first": True,
         }
 
-        if rnn_type == 'gru':
+        if rnn_type == "gru":
             self.rnn = nn.GRU(**rnn_params)
-        elif rnn_type == 'rnn':
+        elif rnn_type == "rnn":
             self.rnn = nn.RNN(**rnn_params)
         else:
-            raise Exception(f'This type of RNN is not supported: {rnn_type}')
+            raise Exception(f"This type of RNN is not supported: {rnn_type}")
 
         self.lin_ind = nn.Linear(ind_input_size, ind_hidden_size)
         self.lin_des = nn.Linear(rnn_hidden_size + ind_hidden_size, des_size)
@@ -81,13 +84,15 @@ class Oracle(nn.Module):
         return p.view(-1)
 
 
-def train_model(data: pd.DataFrame,
-                start_date: str,
-                end_date: str,
-                parameters: Dict,
-                window_size: int = 40,
-                num_epochs: int = 500,
-                train_val_ratio: float = 0.8) -> Tuple[np.float32, nn.Module]:
+def train_model(
+    data: pd.DataFrame,
+    start_date: str,
+    end_date: str,
+    parameters: Dict,
+    window_size: int = 40,
+    num_epochs: int = 500,
+    train_val_ratio: float = 0.8,
+) -> Tuple[np.float32, nn.Module]:
     """
     Trains the model.
 
@@ -106,20 +111,20 @@ def train_model(data: pd.DataFrame,
     train_length = int(ts_len * train_val_ratio)
 
     # get the hyperparameters
-    learning_rate = parameters['lr']
-    rnn_type = parameters['rnn_type']
-    rnn_hidden_size = parameters['rnn_hidden_size']
-    ind_hidden_size = parameters['ind_hidden_size']
-    des_size = parameters['des_size']
-    ind1_name = parameters['ind1']['_name']
-    ind2_name = parameters['ind2']['_name']
+    learning_rate = parameters["lr"]
+    rnn_type = parameters["rnn_type"]
+    rnn_hidden_size = parameters["rnn_hidden_size"]
+    ind_hidden_size = parameters["ind_hidden_size"]
+    des_size = parameters["des_size"]
+    ind1_name = parameters["ind1"]["_name"]
+    ind2_name = parameters["ind2"]["_name"]
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    data_source['open_diff'] = (data['Open'] - data['Open'].shift(1))
-    data_source['open_roc'] = (data['Open'] / data['Open'].shift(1))
-    data_source['ind1'] = get_indicator(data, ind1_name, parameters['ind1'])
-    data_source['ind2'] = get_indicator(data, ind2_name, parameters['ind2'])
+    data_source["open_diff"] = data["Open"] - data["Open"].shift(1)
+    data_source["open_roc"] = data["Open"] / data["Open"].shift(1)
+    data_source["ind1"] = get_indicator(data, ind1_name, parameters["ind1"])
+    data_source["ind2"] = get_indicator(data, ind2_name, parameters["ind2"])
 
     # Cut to 'start date'
     for k, v in data_source.items():
@@ -144,12 +149,12 @@ def train_model(data: pd.DataFrame,
 
     # Initialize model
     model_params = {
-        'rnn_input_size': 2,
-        'ind_input_size': 2,
-        'rnn_type': rnn_type,
-        'rnn_hidden_size': rnn_hidden_size,
-        'ind_hidden_size': ind_hidden_size,
-        'des_size': des_size
+        "rnn_input_size": 2,
+        "ind_input_size": 2,
+        "rnn_type": rnn_type,
+        "rnn_hidden_size": rnn_hidden_size,
+        "ind_hidden_size": ind_hidden_size,
+        "des_size": des_size,
     }
     model = Oracle(**model_params).to(device)
     optimizer = Adam(model.parameters(), lr=learning_rate)
@@ -172,19 +177,20 @@ def train_model(data: pd.DataFrame,
             val_loss = criterion(val_predicted, price_val)
             val_losses.append(val_loss)
 
-        if (e+1) % 100 == 0:
-            print(f'Epoch {e+1} | train: {loss.item()}, '
-                  f'val: {val_loss.item()}')
+        if (e + 1) % 100 == 0:
+            print(f"Epoch {e+1} | train: {loss.item()}, " f"val: {val_loss.item()}")
 
     return torch.mean(torch.tensor(val_losses)).item(), model
 
 
-def evaluate(data: pd.DataFrame,
-             start_date: str,
-             end_date: str,
-             parameters: Dict,
-             model: nn.Module = None,
-             window_size: int = 40) -> None:
+def evaluate(
+    data: pd.DataFrame,
+    start_date: str,
+    end_date: str,
+    parameters: Dict,
+    model: nn.Module = None,
+    window_size: int = 40,
+) -> None:
     """
     Evaluates the model.
 
@@ -202,13 +208,17 @@ def evaluate(data: pd.DataFrame,
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    data_source['open_diff'] = (data['Open'] - data['Open'].shift(1))
-    data_source['open_roc'] = (data['Open'] / data['Open'].shift(1))
+    data_source["open_diff"] = data["Open"] - data["Open"].shift(1)
+    data_source["open_roc"] = data["Open"] / data["Open"].shift(1)
     # data_source['pct_change'] = data['Open'].pct_change()
-    data_source['ind1'] = get_indicator(data, parameters['ind1']['_name'], parameters['ind1'])
-    data_source['ind2'] = get_indicator(data, parameters['ind2']['_name'], parameters['ind2'])
-    data_source['open_diff'][0] = 0
-    data_source['open_roc'][0] = 1
+    data_source["ind1"] = get_indicator(
+        data, parameters["ind1"]["_name"], parameters["ind1"]
+    )
+    data_source["ind2"] = get_indicator(
+        data, parameters["ind2"]["_name"], parameters["ind2"]
+    )
+    data_source["open_diff"][0] = 0
+    data_source["open_roc"][0] = 1
 
     # Cut to 'start date'
     for k, v in data_source.items():
@@ -226,17 +236,17 @@ def evaluate(data: pd.DataFrame,
     tomorrow_price_diff = y[:, :, 0].view(-1)
 
     model_params = {
-        'rnn_input_size': 2,
-        'ind_input_size': 2,
-        'rnn_type': parameters['rnn_type'],
-        'rnn_hidden_size': parameters['rnn_hidden_size'],
-        'ind_hidden_size': parameters['ind_hidden_size'],
-        'des_size': parameters['des_size']
+        "rnn_input_size": 2,
+        "ind_input_size": 2,
+        "rnn_type": parameters["rnn_type"],
+        "rnn_hidden_size": parameters["rnn_hidden_size"],
+        "ind_hidden_size": parameters["ind_hidden_size"],
+        "des_size": parameters["des_size"],
     }
 
     if model is None:
         model = Oracle(**model_params).to(device)
-        model.load_state_dict(torch.load(f'{dir_path}/data/oracle_best.pth'))
+        model.load_state_dict(torch.load(f"{dir_path}/data/oracle_best.pth"))
 
     # evaluate the model
     model.eval()
@@ -247,8 +257,7 @@ def evaluate(data: pd.DataFrame,
 
         # Calculating Absolute Returns
         abs_return = torch.mul(trades, tomorrow_price_diff)
-        cumsum_return = [0] + torch.cumsum(abs_return, dim=0) \
-            .view(-1).tolist()
+        cumsum_return = [0] + torch.cumsum(abs_return, dim=0).view(-1).tolist()
         # Buy and Hold Strategy Returns
         buy_and_hold_returns = buy_and_hold(tomorrow_price_diff)
 
@@ -256,7 +265,6 @@ def evaluate(data: pd.DataFrame,
         # print(f'Buy and Hold Mean Returns: {np.mean(buy_and_hold_returns)}')
         # print(f'Oracle Returns: {round(cumsum_return[-1], 4)}')
         # print(f'Oracle Mean returns: {np.mean(cumsum_return)}')
-        
 
         # plt.title(f'Trading evaluation from {start_date} to {end_date}')
         # plt.plot(cumsum_return, label='Model Returns')
