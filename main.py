@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 import random
 import numpy as np
 import torch
@@ -114,5 +115,5 @@ plt.ylabel("Model Returns (USD)")
 plt.xticks(rotation=45)
 plt.axhline(y=0, color="black", linestyle="--")
 plt.legend()
-plt.savefig("CryptoModelReturns.png")
+plt.savefig(os.path.join('assets', 'images', 'CryptoModelReturns.png'))
 plt.show()
