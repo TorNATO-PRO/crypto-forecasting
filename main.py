@@ -15,11 +15,11 @@ params_oracle = {
     "lr": 0.01,
     "rnn_type": "gru",
     "rnn_hidden_size": 24,
-    "ind_hidden_size": 2,
-    "des_size": 8,
+    "ind_hidden_size": 4,
+    "des_size": 16,
     "ind1": {
         "_name": "cmo",
-        "length": 5
+        "length": 20
     },
     "ind2": {
         "_name": "cci",
@@ -29,17 +29,17 @@ params_oracle = {
 
 params_custom = {
     "lr": 0.1,
-    "rnn_hidden_size": 12,
-    "rnn_agg_hidden_size": 8,
+    "rnn_hidden_size": 16,
+    "rnn_agg_hidden_size": 12,
     "trading_ind_hidden_size": 16,
-    "linear_agg_hidden_size": 16,
+    "linear_agg_hidden_size": 4,
     "ind1": {
-        "_name": "cci",
+        "_name": "cmo",
         "length": 5
     },
     "ind2": {
-        "_name": "rsi",
-        "length": 5
+        "_name": "cmo",
+        "length": 10
     }
 }
 
@@ -54,10 +54,18 @@ startdate = '2018-01-01'
 enddate = '2021-01-01'
 preddate = '2022-01-01'
 
+dlabel = CryptoDataset.BITCOIN
+#dlabel = CryptoDataset.ETHEREUM
 
 data_loader = DataLoader()
-dataset = data_loader.load_data(CryptoDataset.BITCOIN)
+dataset = data_loader.load_data(dlabel)
 
+print()
+print("#########################################")
+print("# Dataset used: ", dlabel)
+print("#########################################")
+
+print()
 print("#########################################")
 print("# Learning using Oracle")
 print("#########################################")
@@ -65,12 +73,14 @@ _, oracle_model = oracle.train_model(dataset, startdate, enddate, params_oracle)
 ora_preds, buy_hold_preds = oracle.evaluate(dataset, enddate, preddate, params_oracle, oracle_model)
 
 
+print()
 print("#########################################")
 print("# Learning using Custom Model")
 print("#########################################")
 _, custom_model = custom.train_model(dataset, startdate, enddate, params_custom, ['Open'])
 cus_preds = custom.evaluate(dataset, enddate, preddate, params_custom, ['Open'], custom_model)
 
+print()
 print("#########################################")
 print("# Summary")
 print("#########################################")
@@ -81,7 +91,7 @@ d = [ ["Buy and Hold", round(buy_hold_preds[-1], 4), np.mean(buy_hold_preds)],
 df = pd.DataFrame(d, columns = ['Model','Final Return','Mean Return'])
 print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
 
-print("Press any key to show plot")
+print("Press return to show plot")
 input()
 
 plt.title(f'Trading evaluation from {enddate} to {preddate}')
