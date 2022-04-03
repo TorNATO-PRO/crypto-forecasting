@@ -1,9 +1,9 @@
 ---
-title: Short-term Cryptocurrency Price Prediction
+title: Finding the Optimal Cyptocurrency Trading Strategy using Deep Learning
 authors: Nathan Waltz, Funso Oje, Hongjin Zhang
 ---
 
-# Short-term Crypto-currency Price Prediction
+# Finding the Optimal Cyptocurrency Trading Strategy using Deep Learning
 
 We will be utilizing a variety of time series forecasting techniques and testing their efficacy on the Yahoo finance dataset [^yahoo-finance]. 
 
