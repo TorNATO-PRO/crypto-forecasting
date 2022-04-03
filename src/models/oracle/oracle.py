@@ -16,7 +16,6 @@ import pandas as pd
 # trust me, we need this for the trading indicators
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
 
 from collections import OrderedDict
 
@@ -158,7 +157,7 @@ def train_model(data: pd.DataFrame,
 
     # train the model
     val_losses = []
-    for e in range(num_epochs):
+    for e in range(1, num_epochs + 1):
         model.train()
         predicted = model(open_train, index_train)
         loss = criterion(predicted, price_train)
@@ -244,7 +243,7 @@ def evaluate(data: pd.DataFrame,
     with torch.no_grad():
         trades = model(cost, index)
         # Rounded Trades
-        trades = torch.round(trades * 100) / 100
+        trades = torch.round(trades)
 
         # Calculating Absolute Returns
         abs_return = torch.mul(trades, tomorrow_price_diff)
@@ -266,4 +265,4 @@ def evaluate(data: pd.DataFrame,
         # plt.legend()
         # plt.show()
 
-    return cumsum_return, buy_and_hold_returns
+    return cumsum_return, buy_and_hold_returns, trades
