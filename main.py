@@ -56,9 +56,6 @@ end_date = '2021-01-01'
 start_pred_date = '2021-01-01'
 end_pred_date = '2022-01-01'
 
-dlabel = CryptoDataset.BITCOIN
-#dlabel = CryptoDataset.ETHEREUM
-
 data_loader = DataLoader()
 crypto_dataset = CryptoDataset('BITCOIN', 'BTC-USD.csv')
 dataset = data_loader.load_data(crypto_dataset)
