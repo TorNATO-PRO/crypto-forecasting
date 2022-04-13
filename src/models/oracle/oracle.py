@@ -32,7 +32,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import os
-from typing import Tuple, Dict, Union, List, Any
+from typing import Tuple, Dict, List
 
 import pandas as pd
 
@@ -143,8 +143,8 @@ def train_model(
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    data_source["open_diff"] = data["Open"] - data["Open"].shift(1)
-    data_source["open_roc"] = data["Open"] / data["Open"].shift(1)
+    data_source["close_diff"] = data["Close"] - data["Close"].shift(1)
+    data_source["close_roc"] = data["Close"] / data["Close"].shift(1)
     data_source["ind1"] = get_indicator(data, ind1_name, parameters["ind1"])
     data_source["ind2"] = get_indicator(data, ind2_name, parameters["ind2"])
 
@@ -165,7 +165,7 @@ def train_model(
     y_val = torch.tensor(y_val).to(device).float()
 
     # get separate inputs, outputs
-    open_train, open_val = x_train[:, :, :2], x_val[:, :, :2]
+    close_train, close_val = x_train[:, :, :2], x_val[:, :, :2]
     index_train, index_val = x_train[:, -1, 2:], x_val[:, -1, 2:]
     price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
 
@@ -186,7 +186,7 @@ def train_model(
     val_losses = []
     for e in range(1, num_epochs + 1):
         model.train()
-        predicted = model(open_train, index_train)
+        predicted = model(close_train, index_train)
         loss = criterion(predicted, price_train)
 
         # compute the gradients
@@ -195,7 +195,7 @@ def train_model(
         optimizer.step()
 
         with torch.no_grad():
-            val_predicted = model(open_val, index_val)
+            val_predicted = model(close_val, index_val)
             val_loss = criterion(val_predicted, price_val)
             val_losses.append(val_loss)
 
@@ -230,17 +230,17 @@ def evaluate(
 
     # an ordered dictionary of data
     data_source = OrderedDict()
-    data_source["open_diff"] = data["Open"] - data["Open"].shift(1)
-    data_source["open_roc"] = data["Open"] / data["Open"].shift(1)
-    # data_source['pct_change'] = data['Open'].pct_change()
+    data_source["close_diff"] = data["Close"] - data["Close"].shift(1)
+    data_source["close_roc"] = data["Close"] / data["Close"].shift(1)
+    # data_source['pct_change'] = data['Close'].pct_change()
     data_source["ind1"] = get_indicator(
         data, parameters["ind1"]["_name"], parameters["ind1"]
     )
     data_source["ind2"] = get_indicator(
         data, parameters["ind2"]["_name"], parameters["ind2"]
     )
-    data_source["open_diff"][0] = 0
-    data_source["open_roc"][0] = 1
+    data_source["close_diff"][0] = 0
+    data_source["close_roc"][0] = 1
 
     # Cut to 'start date'
     for k, v in data_source.items():
@@ -275,7 +275,7 @@ def evaluate(
     with torch.no_grad():
         trades = model(cost, index)
         # Rounded Trades
-        trades = torch.round(trades)
+        trades = torch.round(trades * 100) / 100
 
         # Calculating Absolute Returns
         abs_return = torch.mul(trades, tomorrow_price_diff)

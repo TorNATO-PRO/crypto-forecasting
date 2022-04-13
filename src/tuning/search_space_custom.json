@@ -1,4 +1,80 @@
 {
+  "features": {
+    "_type": "choice",
+    "_value": [
+      [
+        "Open"
+      ],
+      [
+        "Close"
+      ],
+      [
+        "Volume"
+      ],
+      [
+        "Open",
+        "Close"
+      ],
+      [
+        "Open",
+        "Volume"
+      ],
+      [
+        "Close",
+        "Open"
+      ],
+      [
+        "Close",
+        "Volume"
+      ],
+      [
+        "Volume",
+        "Open"
+      ],
+      [
+        "Volume",
+        "Close"
+      ],
+      [
+        "Open",
+        "Close",
+        "Volume"
+      ],
+      [
+        "Open",
+        "Volume",
+        "Close"
+      ],
+      [
+        "Close",
+        "Open",
+        "Volume"
+      ],
+      [
+        "Close",
+        "Volume",
+        "Open"
+      ],
+      [
+        "Volume",
+        "Open",
+        "Close"
+      ],
+      [
+        "Volume",
+        "Close",
+        "Open"
+      ]
+    ]
+  },
+  "rnn_type": {
+    "_type": "choice",
+    "_value": [
+      "rnn",
+      "gru",
+      "lstm"
+    ]
+  },
   "lr": {
     "_type": "choice",
     "_value": [

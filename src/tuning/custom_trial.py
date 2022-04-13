@@ -27,7 +27,7 @@ def prepare_custom(params: Dict) -> float:
     data = DataLoader()
     dataset = data.load_data(CryptoDataset("BITCOIN", "BTC-USD.csv"))
     val_min, _ = train_model(
-        dataset, "2017-01-01", "2021-01-01", params, ["Open", "Close"]
+        dataset, "2017-01-01", "2021-01-01", params, params["features"]
     )
     return val_min
 

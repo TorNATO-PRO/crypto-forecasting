@@ -73,10 +73,15 @@ print("#" * (len(custom_msg) + 2 * pad_len + 2))
 print("#" + pad_len * " " + custom_msg + pad_len * " " + "#")
 print("#" * (len(custom_msg) + 2 * pad_len + 2))
 _, custom_model = custom.train_model(
-    dataset, start_date, end_date, params_custom, ["Open"]
+    dataset, start_date, end_date, params_custom, ["Open", "Close"]
 )
 cus_preds, cus_trades = custom.evaluate(
-    dataset, start_pred_date, end_pred_date, params_custom, ["Open"], custom_model
+    dataset,
+    start_pred_date,
+    end_pred_date,
+    params_custom,
+    ["Open", "Close"],
+    custom_model,
 )
 
 d = [

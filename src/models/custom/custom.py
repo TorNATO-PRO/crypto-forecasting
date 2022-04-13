@@ -140,7 +140,7 @@ class Custom(nn.Module):
         linear_aggregator = torch.relu(
             self.linear_aggregator(indicators_and_linear_output)
         )
-        return torch.sigmoid(self.final_linear_layer(linear_aggregator)).view(-1)
+        return torch.tanh(self.final_linear_layer(linear_aggregator)).view(-1)
 
 
 def create_feature_list(
@@ -252,7 +252,9 @@ def train_model(
         x_train[:, -1, 2 * len(columns) :],
         x_val[:, -1, 2 * len(columns) :],
     )
-    price_train, price_val = y_train[:, :, 0].view(-1), y_val[:, :, 0].view(-1)
+    price_train, price_val = y_train[:, :, columns.index("Close") * 2].view(-1), y_val[
+        :, :, columns.index("Close") * 2
+    ].view(-1)
 
     model_params = {
         "features": map(lambda feature: feature.feature_data, train_list),
@@ -358,7 +360,7 @@ def evaluate(
 
     feature_list = create_feature_list(x, col_list, rnn_hidden_size)
     index = x[:, -1, 2 * len(col_list) :]
-    tomorrow_price_diff = y[:, :, 0].view(-1)
+    tomorrow_price_diff = y[:, :, columns.index("Close") * 2].view(-1)
 
     model_params = {
         "features": map(lambda feature: feature.feature_data, feature_list),
@@ -377,7 +379,7 @@ def evaluate(
     with torch.no_grad():
         trades = model(feature_list, index)
         # Rounded Trades
-        trades = torch.round(trades)
+        trades = torch.round(trades * 100) / 100
 
         # print(trades)
 
