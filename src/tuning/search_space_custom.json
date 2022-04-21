@@ -3,21 +3,20 @@
     "_type": "choice",
     "_value": [
       [
-        "Open"
+        "Open",
+        "Close"
       ],
       [
         "Close"
       ],
       [
-        "Volume"
-      ],
-      [
-        "Open",
+        "Volume",
         "Close"
       ],
       [
         "Open",
-        "Volume"
+        "Volume",
+        "Close"
       ],
       [
         "Close",
@@ -29,20 +28,7 @@
       ],
       [
         "Volume",
-        "Open"
-      ],
-      [
-        "Volume",
-        "Close"
-      ],
-      [
         "Open",
-        "Close",
-        "Volume"
-      ],
-      [
-        "Open",
-        "Volume",
         "Close"
       ],
       [
@@ -54,11 +40,6 @@
         "Close",
         "Volume",
         "Open"
-      ],
-      [
-        "Volume",
-        "Open",
-        "Close"
       ],
       [
         "Volume",
